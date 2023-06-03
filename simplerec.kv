@@ -1,0 +1,92 @@
+#:import MapView kivy_garden.mapview.MapView
+
+<SimpleRec>:
+    name: 'simple_rec'
+
+    MDBoxLayout:
+        orientation: 'vertical'
+        size: root.width, root.height
+        padding: 10
+        spacing: 20
+
+        MapView:
+            id: smap
+            lat: 48
+            lon: 7.82
+            zoom: 11
+
+        MDGridLayout:
+            cols: 4
+            padding: 10
+            spacing: 20
+
+            MDTextField:
+                id: date
+                text: ""
+                pos_hint: {'center_x': .5, 'center_y': .5}
+                hint_text: "Date of record"
+                helper_text: "Choose the date from the calender!"
+
+            MDFloatingActionButton:
+                icon: "calendar"
+                on_release: root.show_date_picker()
+
+            MDTextField:
+                id: time
+                text: ""
+                pos_hint: {'center_x': .5, 'center_y': .5}
+                hint_text: "time of record"
+                helper_text: "Choose the time from the clock"
+
+            MDFloatingActionButton:
+                icon: "clock"
+                on_press: root.show_time_picker()
+
+        MDTextField:
+            id: species
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            hint_text: "Enter Species"
+            helper_text: "Type in the scientific or vernacular name of the species you like to record"
+            on_text_validate: abundance.focus = True
+
+        MDTextField:
+            id: abundance
+            text: "1"
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            hint_text: "Abundance"
+            helper_text: "Type in how many individually you saw"
+            on_text_validate:
+                root.add_points()
+                species.focus = True
+
+
+        MDFillRoundFlatButton:
+            id: add_point_button
+            text: "Add point"
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            focus: False
+            on_release:
+                root.add_points()
+
+        MDFillRoundFlatButton:
+            text: "Save species records to disc"
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            on_release: root.save_records()
+
+        MDFillRoundFlatButton:
+            text: "Back to Menu"
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            on_release:
+                app.root.current = 'menu'
+                root.manager.transition.direction = 'right'
+
+<PointCreator>:
+    source: ''
+    anchor_x: 0
+    anchor_y: 0
+    canvas.after:
+        Color:
+            rgba: [.3, .1, .9, 1]
+        Line:
+            circle: self.x, self.y, 5
+            width: 1.2

@@ -1,0 +1,36 @@
+<Menu>:
+    name: 'menu'
+
+    BoxLayout:
+        orientation: 'vertical'
+        size: root.width, root.height
+
+        padding: 30
+        spacing: 20
+
+        MDLabel:
+            text: "Field Surv - Survey the Nature"
+            halign: "center"
+            font_style: 'H2'
+            md_bg_color: app.theme_cls.primary_light
+
+        MDFillRoundFlatButton:
+            text: "Simple Point recordings"
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            on_release:
+                app.root.current = 'simple_rec'
+                root.manager.transition.direction = 'left'
+
+        MDFillRoundFlatButton:
+            text: "Running Projects"
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            on_release:
+                app.root.current = 'projects'
+                root.manager.transition.direction = 'left'
+
+        MDFillRoundFlatButton:
+            text: "Create a Project"
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            on_release:
+                app.root.current = 'projects_init'
+                root.manager.transition.direction = 'left'
