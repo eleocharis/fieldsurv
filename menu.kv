@@ -4,14 +4,14 @@
     BoxLayout:
         orientation: 'vertical'
         size: root.width, root.height
-
-        padding: 30
         spacing: 20
 
         MDLabel:
             text: "Field Surv - Survey the Nature"
             halign: "center"
-            font_style: 'H2'
+            size_hint: None, None
+            size: root.width, 80
+            font_style: 'H4'
             md_bg_color: app.theme_cls.primary_light
 
         MDFillRoundFlatButton:
@@ -32,5 +32,5 @@
             text: "Create a Project"
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             on_release:
-                app.root.current = 'projects_init'
+                app.root.current = 'create_project'
                 root.manager.transition.direction = 'left'
