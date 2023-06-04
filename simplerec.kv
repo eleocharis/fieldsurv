@@ -1,31 +1,50 @@
 #:import MapView kivy_garden.mapview.MapView
 
 <SimpleRec>:
-    name: 'simple_rec'
+    name: "simple_rec"
+
+    MapView:
+        id: smap
+        lat: 48
+        lon: 7.82
+        zoom: 11
+
+    MDFloatLayout:
+
+        MDFloatingActionButton:
+            id: show_input_button
+            icon: "plus"
+            pos_hint: {'center_x': 0.9, "center_y": 0.06}
+            md_bg_color: app.theme_cls.accent_color
+            on_press: root.show_input_field(input_field, show_input_button)
 
     MDBoxLayout:
+        id: input_field
         orientation: 'vertical'
-        size: root.width, root.height
-        padding: 10
-        spacing: 20
+        adaptive_height: True
+        pos_hint: {'x': 0, 'y': -self.height}
+        padding: 20
+        spacing: 10
 
-        MapView:
-            id: smap
-            lat: 48
-            lon: 7.82
-            zoom: 11
+        canvas:
+            Color:
+                rgba: 1, 1, 1, .8
+            Rectangle:
+                pos: self.pos
+                size: self.size
 
-        MDGridLayout:
-            cols: 4
-            padding: 10
-            spacing: 20
+
+        MDBoxLayout:
+            orientation: 'horizontal'
+            adaptive_height: True
+            spacing: 10
 
             MDTextField:
                 id: date
                 text: ""
                 pos_hint: {'center_x': .5, 'center_y': .5}
                 hint_text: "Date of record"
-                helper_text: "Choose the date from the calender!"
+                helper_text: "Choose the date!"
 
             MDFloatingActionButton:
                 icon: "calendar"
@@ -35,8 +54,8 @@
                 id: time
                 text: ""
                 pos_hint: {'center_x': .5, 'center_y': .5}
-                hint_text: "time of record"
-                helper_text: "Choose the time from the clock"
+                hint_text: "Time of record"
+                helper_text: "Choose the time!"
 
             MDFloatingActionButton:
                 icon: "clock"
@@ -44,7 +63,7 @@
 
         MDTextField:
             id: species
-            pos_hint: {'center_x': .5, 'center_y': .5}
+            pos_hint: {'center_x': .5, 'center_y': .27}
             hint_text: "Enter Species"
             helper_text: "Type in the scientific or vernacular name of the species you like to record"
             on_text_validate: abundance.focus = True
@@ -52,7 +71,7 @@
         MDTextField:
             id: abundance
             text: "1"
-            pos_hint: {'center_x': .5, 'center_y': .5}
+            pos_hint: {'center_x': .5, 'center_y': .22}
             hint_text: "Abundance"
             helper_text: "Type in how many individually you saw"
             on_text_validate:
@@ -63,19 +82,19 @@
         MDFillRoundFlatButton:
             id: add_point_button
             text: "Add point"
-            pos_hint: {'center_x': .5, 'center_y': .5}
+            pos_hint: {'center_x': .5, 'center_y': .15}
             focus: False
             on_release:
                 root.add_points()
 
         MDFillRoundFlatButton:
             text: "Save species records to disc"
-            pos_hint: {'center_x': .5, 'center_y': .5}
+            pos_hint: {'center_x': .5, 'center_y': .1}
             on_release: root.save_records()
 
         MDFillRoundFlatButton:
             text: "Back to Menu"
-            pos_hint: {'center_x': .5, 'center_y': .5}
+            pos_hint: {'center_x': .5, 'center_y': .05}
             on_release:
                 app.root.current = 'menu'
                 root.manager.transition.direction = 'right'
