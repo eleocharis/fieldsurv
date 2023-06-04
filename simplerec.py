@@ -1,9 +1,11 @@
 from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen
+from kivy.core.window import Window
 from kivy_garden.mapview import MapMarkerPopup
 from kivy.graphics import Color, Line
 from kivy.clock import Clock
 from kivymd.uix.pickers import MDDatePicker, MDTimePicker
+from kivy.animation import Animation
 from pathlib import Path
 import datetime
 import pandas as pd
@@ -96,3 +98,22 @@ class SimpleRec(Screen):
     def on_cancel(self, instance, value):
         # Events called when the "CANCEL" dialog box button is clicked.
         pass
+
+    def show_input_field(self, input_field, show_input_button):
+        #
+        if self.ids.show_input_button.pos_hint == {'center_x': 0.9, "center_y": 0.06}:
+            show_input = Animation(pos_hint={'x': 0, 'y': 0},duration=0.2)
+            show_input.start(input_field)
+
+            move_button = Animation(pos_hint={'center_x': 0.9, "center_y": self.ids.input_field.height/Window.size[1]*1.1}, duration=0.2)
+            move_button.start(show_input_button)
+            self.ids.show_input_button.icon = 'minus'
+        else:
+            show_input = Animation(pos_hint={'x': 0, 'y': -self.ids.input_field.height}, duration=0.2)
+            show_input.start(input_field)
+
+            move_button = Animation(
+                pos_hint={'center_x': 0.9, "center_y": 0.06},
+                duration=0.2)
+            move_button.start(show_input_button)
+            self.ids.show_input_button.icon = 'plus'
