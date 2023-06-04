@@ -14,6 +14,7 @@ class MainApp(MDApp):
     def build(self):
         self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = 'Teal'
+        self.theme_cls.primary_hue = '700'
         self.theme_cls.accent_palette = 'Orange'
 
         screen_manager = ScreenManager()
