@@ -2,8 +2,8 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen
 
 
-Builder.load_file('create_project.kv')
+Builder.load_file('running_projects.kv')
 
 
-class CreateProject(Screen):
+class RunningProjects(Screen):
         pass
