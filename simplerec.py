@@ -4,6 +4,7 @@ from kivy.core.window import Window
 from kivy_garden.mapview import MapMarkerPopup
 from kivy.graphics import Color, Line
 from kivy.clock import Clock
+from kivy.uix.button import Button
 from kivymd.uix.pickers import MDDatePicker, MDTimePicker
 from kivy.animation import Animation
 from pathlib import Path
@@ -11,24 +12,24 @@ import datetime
 import pandas as pd
 
 
-
 Builder.load_file('simplerec.kv')
 
 
 class PointCreator(MapMarkerPopup):
     def __init__(self, x, y, **kwargs):
-        super(PointCreator, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.x = x
         self.y = y
 
+
 class SimpleRec(Screen):
     def __init__(self, **kwargs):
-        super(SimpleRec, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.file = 'data/simple_point_records.csv'
         self.read_point_records_file()
         self.ids.date.text = datetime.date.today().strftime("%Y-%m-%d")
         self.ids.time.text = datetime.datetime.now().strftime("%H:%M")
-        Clock.schedule_interval(lambda dt:self.crosshair(), 1)
+        Clock.schedule_interval(lambda dt: self.crosshair(), 1)
 
     def crosshair(self):
         x, y = self.ids.smap.center
@@ -53,6 +54,8 @@ class SimpleRec(Screen):
         x = self.ids.smap.lat
         y = self.ids.smap.lon
         point = PointCreator(lat=self.ids.smap.lat, lon=self.ids.smap.lon, x=x, y=y)
+        point_information = Button(text=str(x + y))  # Does not work jet
+        point.add_widget(point_information)
         self.ids.smap.add_widget(point)
 
         # empty fields and set focus
@@ -68,6 +71,9 @@ class SimpleRec(Screen):
             for index, row in self.records.iterrows():
                 lat, lon = float(row["lat"]), float(row["lon"])
                 point = PointCreator(lat=lat, lon=lon, x=lat, y=lon)
+                point_information = Button(size=(self.width*0.2, self.height*0.1),
+                                           text=f'{row["species"]} {row["abundance"]}') # Does not work jet
+                point.add_widget(point_information)
                 self.ids.smap.add_widget(point)
         else:
             self.records = pd.DataFrame(columns=["species", "abundance", "timestamp", "lat", "lon"])
@@ -75,7 +81,6 @@ class SimpleRec(Screen):
     def save_records(self):
         # this saves the recordings on the drive
         self.records.to_csv(self.file, index=False)
-
 
     def show_date_picker(self):
         # Open date picker dialog.
@@ -101,11 +106,12 @@ class SimpleRec(Screen):
 
     def show_input_field(self, input_field, show_input_button):
         #
-        if self.ids.show_input_button.pos_hint == {'center_x': 0.9, "center_y": 0.06}:
-            show_input = Animation(pos_hint={'x': 0, 'y': 0},duration=0.2)
+        if self.ids.show_input_button.icon == 'plus':
+            show_input = Animation(pos_hint={'x': 0, 'y': 0}, duration=0.2)
             show_input.start(input_field)
 
-            move_button = Animation(pos_hint={'center_x': 0.9, "center_y": self.ids.input_field.height/Window.size[1]*1.1}, duration=0.2)
+            move_button = Animation(pos_hint={'center_x': 0.9,
+                                              "center_y": self.ids.input_field.height/Window.size[1]*1.1}, duration=0.2)
             move_button.start(show_input_button)
             self.ids.show_input_button.icon = 'minus'
         else:
@@ -117,3 +123,4 @@ class SimpleRec(Screen):
                 duration=0.2)
             move_button.start(show_input_button)
             self.ids.show_input_button.icon = 'plus'
+

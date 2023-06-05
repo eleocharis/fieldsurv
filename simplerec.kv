@@ -1,8 +1,6 @@
 #:import MapView kivy_garden.mapview.MapView
 
 <SimpleRec>:
-    name: "simple_rec"
-
     MapView:
         id: smap
         lat: 48
@@ -56,6 +54,7 @@
                 pos_hint: {'center_x': .5, 'center_y': .5}
                 hint_text: "Time of record"
                 helper_text: "Choose the time!"
+                validator: 'time'
 
             MDFloatingActionButton:
                 icon: "clock"
@@ -107,5 +106,5 @@
         Color:
             rgba: [.3, .1, .9, 1]
         Line:
-            circle: self.x, self.y, 5
+            circle: self.x, self.y, 7
             width: 1.2
