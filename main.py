@@ -1,10 +1,12 @@
 from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager
 from kivy.core.window import Window
+
 from menu import Menu
 from simplerec import SimpleRec
+from running_projects import RunningProjects
 from create_project import CreateProject
-
+from user_data import UserData
 
 # Set app size
 Window.size = (450, 950)
@@ -25,8 +27,14 @@ class MainApp(MDApp):
         simple_rec = SimpleRec(name='simple_rec')
         screen_manager.add_widget(simple_rec)
 
+        running_projects = RunningProjects(name='running_projects')
+        screen_manager.add_widget(running_projects)
+
         create_project = CreateProject(name='create_project')
         screen_manager.add_widget(create_project)
+
+        user_data = UserData(name='user_data')
+        screen_manager.add_widget(user_data)
 
         return screen_manager
 
