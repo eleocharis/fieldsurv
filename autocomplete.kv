@@ -1,0 +1,16 @@
+<Autocomplete>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        #adaptive_height: True
+
+        MDTextField:
+            id: tf
+            hint_text: "Autofill"
+            helper_text: "Autofill hard tryouts, vrooowwwwwwmm!"
+            pos_hint: {'center_x': 0.5, 'center_y': 0.6}
+            on_text: root.create_suggestions(*args)
+
+        MDStackLayout:
+            id: word_suggests
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            spacing: "2dp"
