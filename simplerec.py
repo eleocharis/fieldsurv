@@ -8,6 +8,7 @@ from kivy.uix.button import Button
 from kivymd.uix.pickers import MDDatePicker, MDTimePicker
 from kivy.animation import Animation
 from pathlib import Path
+from autocomplete import AutoComplete
 import datetime
 import pandas as pd
 
@@ -22,7 +23,7 @@ class PointCreator(MapMarkerPopup):
         self.y = y
 
 
-class SimpleRec(Screen):
+class SimpleRec(Screen, AutoComplete):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.file = 'data/simple_point_records.csv'
@@ -42,7 +43,7 @@ class SimpleRec(Screen):
     def add_points(self):
         print(f'{self.ids.smap.lat} | {self.ids.smap.lon}')
         # add points to the records DataFrame
-        point_attributes = {"species": self.ids.species.text,
+        point_attributes = {"species": self.ids.tf.text,
                             "abundance": self.ids.abundance.text,
                             "timestamp": f'{self.ids.date.text} {self.ids.time.text}',
                             "lat": self.ids.smap.lat,
@@ -59,10 +60,10 @@ class SimpleRec(Screen):
         self.ids.smap.add_widget(point)
 
         # empty fields and set focus
-        self.ids.species.text = ""
+        self.ids.tf.text = ""
         self.ids.abundance.text = "1"
         self.ids.time.text = datetime.datetime.now().strftime("%H:%M")
-        self.ids.species.focus = True
+        self.ids.tf.focus = True
 
     def read_point_records_file(self):
         # reads previously recorded and saved species data from the drive
