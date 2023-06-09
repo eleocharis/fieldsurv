@@ -31,7 +31,6 @@
                 pos: self.pos
                 size: self.size
 
-
         MDBoxLayout:
             orientation: 'horizontal'
             adaptive_height: True
@@ -40,7 +39,6 @@
             MDTextField:
                 id: date
                 text: ""
-                pos_hint: {'center_x': .5, 'center_y': .5}
                 hint_text: "Date of record"
                 helper_text: "Choose the date!"
 
@@ -51,7 +49,6 @@
             MDTextField:
                 id: time
                 text: ""
-                pos_hint: {'center_x': .5, 'center_y': .5}
                 hint_text: "Time of record"
                 helper_text: "Choose the time!"
                 validator: 'time'
@@ -61,42 +58,51 @@
                 on_press: root.show_time_picker()
 
         MDTextField:
-            id: species
-            pos_hint: {'center_x': .5, 'center_y': .27}
+            id: tf
+            #pos_hint: {'center_x': .5, 'center_y': .27}
             hint_text: "Enter Species"
             helper_text: "Type in the scientific or vernacular name of the species you like to record"
+            on_text: root.create_suggestions(*args)
             on_text_validate: abundance.focus = True
+
+        MDCard:
+            size_hint_y: None
+            size: root.width, "130dp"
+            md_bg_color: app.theme_cls.accent_color[0], app.theme_cls.accent_color[1], app.theme_cls.accent_color[2], 0.3
+
+            MDStackLayout:
+                id: word_suggests
+                padding: "8dp"
+                spacing: "2dp"
 
         MDTextField:
             id: abundance
             text: "1"
-            pos_hint: {'center_x': .5, 'center_y': .22}
             hint_text: "Abundance"
             helper_text: "Type in how many individually you saw"
             on_text_validate:
                 root.add_points()
                 species.focus = True
 
+        MDBoxLayout:
+            orientation: 'horizontal'
+            adaptive_height: True
+            spacing: 3
 
-        MDFillRoundFlatButton:
-            id: add_point_button
-            text: "Add point"
-            pos_hint: {'center_x': .5, 'center_y': .15}
-            focus: False
-            on_release:
-                root.add_points()
+            MDFillRoundFlatButton:
+                text: "Add point"
+                focus: False
+                on_release: root.add_points()
 
-        MDFillRoundFlatButton:
-            text: "Save species records to disc"
-            pos_hint: {'center_x': .5, 'center_y': .1}
-            on_release: root.save_records()
+            MDFillRoundFlatButton:
+                text: "Save to disc"
+                on_release: root.save_records()
 
-        MDFillRoundFlatButton:
-            text: "Back to Menu"
-            pos_hint: {'center_x': .5, 'center_y': .05}
-            on_release:
-                app.root.current = 'menu'
-                root.manager.transition.direction = 'right'
+            MDFillRoundFlatButton:
+                text: "Back to Menu"
+                on_release:
+                    app.root.current = 'menu'
+                    root.manager.transition.direction = 'right'
 
 <PointCreator>:
     source: ''
