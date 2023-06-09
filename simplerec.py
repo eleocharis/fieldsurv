@@ -8,7 +8,7 @@ from kivy.uix.button import Button
 from kivymd.uix.pickers import MDDatePicker, MDTimePicker
 from kivy.animation import Animation
 from pathlib import Path
-from autocomplete import AutoComplete
+from autocomplete_species import AutoCompleteSp
 import datetime
 import pandas as pd
 
@@ -23,7 +23,7 @@ class PointCreator(MapMarkerPopup):
         self.y = y
 
 
-class SimpleRec(Screen, AutoComplete):
+class SimpleRec(Screen, AutoCompleteSp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.file = 'data/simple_point_records.csv'
