@@ -1,5 +1,4 @@
 from kivymd.app import MDApp
-from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.uix.widget import Widget
 from kivy.lang import Builder
 from kivy.clock import Clock
@@ -10,7 +9,7 @@ import pandas as pd
 Builder.load_file('autocomplete.kv')
 
 
-class AutoComplete(Widget):
+class AutoCompleteSp(Widget):
     '''
     This module creates inline autocompletion for species filtered from species lists.
     It needs a TextInput or MDTextfield with the id: tf and
@@ -78,8 +77,6 @@ if __name__ == '__main__':
             self.theme_cls.primary_hue = '700'
             self.theme_cls.accent_palette = 'Orange'
 
-            screen_manager = ScreenManager()
-            auto = AutoComplete(name='auto')
-            screen_manager.add_widget(auto)
-            return screen_manager
+            autocomp = AutoCompleteSp()
+            return autocomp
     MainApp().run()
