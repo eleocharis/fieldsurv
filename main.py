@@ -1,12 +1,27 @@
 from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager
 from kivy.core.window import Window
+from pathlib import Path
+import pandas as pd
 
 from menu import Menu
 from simplerec import SimpleRec
 from running_projects import RunningProjects
 from create_project import CreateProject
 from user_data import UserData
+
+
+# Load species lists.
+p = Path('data/species_lists').glob("**/*.csv")
+files = [x for x in p if x.is_file()]
+
+SPECIES_LISTS = {}
+
+for file in files:
+    # Read the file into a dataframe
+    df = pd.read_csv(file)
+    # Store the dataframe in the dictionary using the filename as the key
+    SPECIES_LISTS[file] = df
 
 # Set app size
 Window.size = (450, 950)
