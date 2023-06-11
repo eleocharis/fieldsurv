@@ -114,12 +114,12 @@ class UserSettings(Screen):
 
     def save_user_settings(self):
         dump_user_settings = {}
+        dump_user_settings["name"] = self.ids.name.text
+        dump_user_settings["institution"] = self.ids.institution.text
         dump_user_settings["country"] = self.ids.country.text
         dump_user_settings["language"] = self.ids.language.text
         dump_user_settings["taxon"] = self.taxon_pull_list
-        #print(dump_user_settings)
-        #for taxon in
-        #dump_user_settings
+
         # take all usersettings from the fields
         json_object = json.dumps(dump_user_settings, indent=4)
 
@@ -132,6 +132,8 @@ class UserSettings(Screen):
             with open('user_settings.json') as us:
                 user_settings = json.load(us)
 
+            self.ids.name.text = user_settings["name"]
+            self.ids.institution.text = user_settings["institution"]
             self.ids.country.text = user_settings["country"]
             self.ids.language.text = user_settings["language"]
             self.taxon_pull_list = user_settings["taxon"]
