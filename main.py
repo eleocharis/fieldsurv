@@ -6,7 +6,7 @@ from menu import Menu
 from simplerec import SimpleRec
 from running_projects import RunningProjects
 from create_project import CreateProject
-from settings import Settings
+from usersettings import UserSettings
 
 # Set app size
 Window.size = (450, 950)
@@ -33,7 +33,7 @@ class MainApp(MDApp):
         create_project = CreateProject(name='create_project')
         screen_manager.add_widget(create_project)
 
-        settings = Settings(name='settings')
+        settings = UserSettings(name='settings')
         screen_manager.add_widget(settings)
 
         return screen_manager
