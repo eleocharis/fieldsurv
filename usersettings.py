@@ -113,8 +113,9 @@ class UserSettings(Screen):
                     continue
 
     def save_user_settings(self):
+        # saves all the user settings to the user_settings.json - file.
         dump_user_settings = {}
-        dump_user_settings["name"] = self.ids.name.text
+        dump_user_settings["user_name"] = self.ids.user_name.text
         dump_user_settings["institution"] = self.ids.institution.text
         dump_user_settings["country"] = self.ids.country.text
         dump_user_settings["language"] = self.ids.language.text
@@ -128,11 +129,12 @@ class UserSettings(Screen):
             outfile.write(json_object)
 
     def load_user_settings(self):
+        # upload of user_settings at app startup
         if Path('user_settings.json').exists():
             with open('user_settings.json') as us:
                 user_settings = json.load(us)
 
-            self.ids.name.text = user_settings["name"]
+            self.ids.user_name.text = user_settings["user_name"]
             self.ids.institution.text = user_settings["institution"]
             self.ids.country.text = user_settings["country"]
             self.ids.language.text = user_settings["language"]
@@ -141,8 +143,6 @@ class UserSettings(Screen):
             for taxon, button in self.taxon_button_list.items():
                 if taxon in self.taxon_pull_list:
                     button.icon = 'check-circle'
-
-
 
             self.get_species_lists()
 
