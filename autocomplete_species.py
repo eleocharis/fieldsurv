@@ -31,7 +31,7 @@ class AutoCompleteSp(Widget):
             filtered_suggestions = [key for key in SPEC_AUT_C_DICT.keys()
                                     if key.lower().startswith(tf_input[0].lower())]
         else:
-            try:  # In some lists there are only genus names or the family ect. the absence of a "species" value would crash the programm.
+            try:  # Avoid crash when no "species value was given
                 filtered_suggestions = [key for key in SPEC_AUT_C_DICT[tf_input[0]]
                                         if key.startswith(tf_input[1])]
             except:
