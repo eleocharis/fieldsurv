@@ -53,13 +53,9 @@
                 on_press: root.language_dropdown.open()
 
         MDCard:
+            id: taxon_buttons
             size: root.width, "130dp"
             md_bg_color: app.theme_cls.accent_color[0], app.theme_cls.accent_color[1], app.theme_cls.accent_color[2], 0.3
-
-            MDStackLayout:
-                id: taxon_buttons
-                padding: "8dp"
-                spacing: "2dp"
 
         MDFillRoundFlatButton:
             text: "Upload lists"

@@ -3,6 +3,8 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.button import MDFillRoundFlatIconButton
+from kivy.uix.stacklayout import StackLayout
+from kivy.uix.scrollview import ScrollView
 from pathlib import Path
 from collections import defaultdict
 import json
@@ -11,7 +13,7 @@ import pandas as pd
 # Looks up which for which taxon (species groups) lists are available.
 p = Path('../fieldsurv/data/species_lists').glob("**/*.csv")
 files = [x for x in p if x.is_file()]
-TAXON_LIST = [str(x).split("_")[-1][:-4] for x in files]  # Creates a list of taxon out of the spec_country_taxon.csv file
+TAXON_LIST = [str(x).split("_")[-1][:-4] for x in files]  # Creates a list of taxon out of the spec_country_taxon.csv
 SPECIES_LISTS = {}  # Holds all species lists which are uploaded by the
 SPEC_AUT_C_DICT = defaultdict(list)
 
@@ -22,10 +24,8 @@ class UserSettings(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.create_buttons_from_tax_list()
-        self.taxon_pull_list = []
+        self.taxon_pull_list = []  # This list will
         self.load_user_settings()
-
-
 
         country_list = pd.read_csv('data/country_lists_joined_adapted.csv')
 
@@ -54,7 +54,6 @@ class UserSettings(Screen):
             items=languages,
             width_mult=4)
 
-
     def country_dropdown_callback(self, text_item):
         self.ids.country.text = text_item
 
@@ -62,12 +61,21 @@ class UserSettings(Screen):
         self.ids.language.text = text_item
 
     def create_buttons_from_tax_list(self):
-        self.taxon_button_list = {}  # this list stores all buttons to later change properties, eg the checked icon ect.
         global TAXON_LIST
+        self.taxon_button_list = {}  # this list stores all buttons references.
+
+        # Prepere the widget structure:
+        scroll_view = ScrollView(size_hint=(1, None), size=(self.width, "130dp"))
+        stack_layout = StackLayout(size_hint_y=None, size=[self.width, self.height], padding=["8dp", 0], spacing="2dp")
+        stack_layout.bind(minimum_height=stack_layout.setter('height'))
+
         for taxon in TAXON_LIST:
             taxon_button = MDFillRoundFlatIconButton(text=taxon, id=taxon, icon='circle', on_press=self.button_pressed)
             self.taxon_button_list[taxon] = taxon_button
-            self.ids.taxon_buttons.add_widget(taxon_button)
+            stack_layout.add_widget(taxon_button)
+
+        scroll_view.add_widget(stack_layout)
+        self.ids.taxon_buttons.add_widget(scroll_view)
 
     def button_pressed(self, button):
         if button.icon == 'circle':
@@ -102,7 +110,7 @@ class UserSettings(Screen):
                 try:
                     genus = sp.split(" ", maxsplit=1)[0]
                 except:
-                    continue
+                    genus = []
                 try:
                     species = sp.split(" ", maxsplit=1)[1]
                 except:
@@ -110,16 +118,13 @@ class UserSettings(Screen):
                 try:
                     SPEC_AUT_C_DICT[genus].append(species)
                 except:
-                    continue
+                    pass
 
     def save_user_settings(self):
         # saves all the user settings to the user_settings.json - file.
-        dump_user_settings = {}
-        dump_user_settings["user_name"] = self.ids.user_name.text
-        dump_user_settings["institution"] = self.ids.institution.text
-        dump_user_settings["country"] = self.ids.country.text
-        dump_user_settings["language"] = self.ids.language.text
-        dump_user_settings["taxon"] = self.taxon_pull_list
+        dump_user_settings = {"user_name": self.ids.user_name.text, "institution": self.ids.institution.text,
+                              "country": self.ids.country.text, "language": self.ids.language.text,
+                              "taxon": self.taxon_pull_list}
 
         # take all usersettings from the fields
         json_object = json.dumps(dump_user_settings, indent=4)
@@ -145,6 +150,7 @@ class UserSettings(Screen):
                     button.icon = 'check-circle'
 
             self.get_species_lists()
+
 
 if __name__ == '__main__':
     class MainApp(MDApp):
