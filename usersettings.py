@@ -1,6 +1,7 @@
 from kivymd.app import MDApp
 from kivy.lang import Builder
-from kivy.uix.screenmanager import Screen, ScreenManager
+from kivymd.uix.screen import MDScreen
+from kivymd.uix.screenmanager import MDScreenManager
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.button import MDFillRoundFlatIconButton
 from kivy.uix.stacklayout import StackLayout
@@ -20,7 +21,7 @@ SPEC_AUT_C_DICT = defaultdict(list)
 Builder.load_file('usersettings.kv')
 
 
-class UserSettings(Screen):
+class UserSettings(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.create_buttons_from_tax_list()
@@ -160,7 +161,7 @@ if __name__ == '__main__':
             self.theme_cls.primary_hue = '700'
             self.theme_cls.accent_palette = 'Orange'
 
-            screen_manager = ScreenManager()
+            screen_manager = MDScreenManager()
 
             user_data = UserSettings(name='user_data')
             screen_manager.add_widget(user_data)

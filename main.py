@@ -1,5 +1,5 @@
 from kivymd.app import MDApp
-from kivy.uix.screenmanager import ScreenManager
+from kivymd.uix.screenmanager import MDScreenManager
 from kivy.core.window import Window
 
 from menu import Menu
@@ -19,7 +19,7 @@ class MainApp(MDApp):
         self.theme_cls.primary_hue = '700'
         self.theme_cls.accent_palette = 'Orange'
 
-        screen_manager = ScreenManager()
+        screen_manager = MDScreenManager()
 
         menu = Menu(name='menu')
         screen_manager.add_widget(menu)
