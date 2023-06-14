@@ -54,7 +54,7 @@ class UserSettings(MDScreen):
             caller=self.ids.language_button,
             items=languages,
             width_mult=4)
-
+        print(country_list)
     def country_dropdown_callback(self, text_item):
         self.ids.country.text = text_item
 
@@ -97,8 +97,6 @@ class UserSettings(MDScreen):
             df = pd.read_csv(path)
             # Store the dataframe in the dictionary using the filename as the key
             SPECIES_LISTS[taxon] = df
-
-        print(SPECIES_LISTS.keys())
 
         # prepares the species lists into dictionaries, to filter for genus
         # and after only the species within the selected genus.
