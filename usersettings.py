@@ -54,7 +54,7 @@ class UserSettings(MDScreen):
             caller=self.ids.language_button,
             items=languages,
             width_mult=4)
-        print(country_list)
+        # print(country_list)
     def country_dropdown_callback(self, text_item):
         self.ids.country.text = text_item
 
@@ -147,6 +147,7 @@ class UserSettings(MDScreen):
             for taxon, button in self.taxon_button_list.items():
                 if taxon in self.taxon_pull_list:
                     button.icon = 'check-circle'
+                    break
 
             self.get_species_lists()
 
