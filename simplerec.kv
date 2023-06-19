@@ -21,7 +21,7 @@
             icon: 'view-headline'
             pos_hint: {'center_x': 0.1, "center_y": 0.95}
             md_bg_color: app.theme_cls.accent_color
-            on_press: root.show_record_table(record_table, show_records_button)
+            on_press: root.show_record_table(record_table_layout, show_records_button)
 
         MDFloatingActionButton:
             id: show_input_button
@@ -33,11 +33,25 @@
 
     # TextFields, Tables and other things popping up when called.
     MDBoxLayout:
-        id: record_table
+        id: record_table_layout
         orientation: 'vertical'
         size_hint: 1, .4
         pos: 0, root.height
         padding: 2
+
+        canvas.before:
+            Color:
+                rgba: 1, 1, 1, .8
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+
+        MDScrollView:
+
+            MDList:
+                id: record_table
+
 
 
     MDBoxLayout:
@@ -130,14 +144,13 @@
                     root.manager.transition.direction = 'right'
 
 <PointCreator>:
-    source: ''
-    anchor_x: 0
-    anchor_y: 0
-    canvas.after:
+    source: 'images/transparent_marker.png' #is responsible for the field which enables a widget to be shown by press
+    anchor_x: 0.5
+    anchor_y: 0.5
+    canvas:
         Color:
-            rgba: [.3, .1, .9, 1]
+            rgba: [.9, .1, .2, 1]
         Line:
-            circle: self.x, self.y, 7
-            width: 1.2
-
-<MSpeedDialButton>:
+            circle: self.x+7, self.y+7, 5
+            width: 2
+    on_release: self.popup_info()
