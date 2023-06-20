@@ -1,6 +1,9 @@
 #:import MapView kivy_garden.mapview.MapView
 
 <SimpleRec>:
+
+    record_table: record_table
+
     MapView:
         id: map
         lat: 48
@@ -46,12 +49,9 @@
                 pos: self.pos
                 size: self.size
 
-
         MDScrollView:
-
             MDList:
                 id: record_table
-
 
 
     MDBoxLayout:
