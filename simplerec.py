@@ -42,6 +42,7 @@ class PointCreator(MapMarkerPopup):
         self.id = id
 
     def popup_info(self):
+        # Add info Popup
         layout = MDBoxLayout(size_hint=(None, None), size=[200, 100], orientation='vertical', md_bg_color=[1, 1, 1, .8])
         label = MDLabel(text=f'{self.species}\nn: {self.abundance}\n{self.date}', theme_text_color="Custom",
                         text_color=[0, 0, 5, 1])
@@ -53,24 +54,40 @@ class PointCreator(MapMarkerPopup):
         #print(self.id)
 
     def delete_point(self, button):
-        print(button.parent.parent.parent)
-        #sr = SimpleRec()
-        self.remove_widget(button.parent.parent.parent)
+        # not jet working properly
+        sr = SimpleRec()
+
+        # remove point from Table
+        #print()
+        print(button.parent.parent.parent.id)
+        sr.ids.record_table.remove_widget(sr.table_items[str(button.parent.parent.parent.id)])
+
+        # remove point from records
+        sr.records = sr.records[sr.records["id"] != str(button.parent.parent.parent.id)]
+        print(sr.records)
+
+        # Remove point from map
+        sr.ids.map.remove_widget(button.parent.parent.parent)
+        #SimpleRec = sr
 
 
 
 class SimpleRec(MDScreen, AutoCompleteSp):
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.file = 'data/simple_point_records.csv'
         self.records = None
         self.next_id = None
         self.points = {}
+        self.table_items = {}
+        self.map_source_management()
         self.read_point_records_file()
         self.ids.date.text = datetime.date.today().strftime("%Y-%m-%d")
         self.ids.time.text = datetime.datetime.now().strftime("%H:%M")
         Clock.schedule_interval(lambda dt: self.crosshair(), 1)
 
+    def map_source_management(self):
         # add alternative map sources to the MapSource
         alternative_map_source = (0, 0, 19, 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
                         'Kartendaten: © OpenStreetMap-Mitwirkende, SRTM | Kartendarstellung: © OpenTopoMap (CC-BY-SA)')
@@ -148,7 +165,7 @@ class SimpleRec(MDScreen, AutoCompleteSp):
             self.next_id = str("F" + str(int(self.records.iloc[-1]["id"][1:]) + 1))
 
         else:
-            self.records = pd.DataFrame(columns=["species", "abundance", "timestamp", "lat", "lon"])
+            self.records = pd.DataFrame(columns=["id", "species", "abundance", "timestamp", "lat", "lon"])
             self.next_id = "F1"
 
     def save_records(self):
@@ -203,17 +220,17 @@ class SimpleRec(MDScreen, AutoCompleteSp):
         self.map_dropdown.dismiss()
         print(MapSource.providers.values())
 
-
     def fill_records_table(self, last_entry):
-        self.ids.record_table.add_widget(
-            ThreeLineIconListItem(
-                IconLeftWidget(icon='flower'),
-                text=str(last_entry["species"]),
-                secondary_text=str("Abundance " + str(last_entry["abundance"])),
-                tertiary_text=str(last_entry["timestamp"]),
-                on_release=lambda x: self.click_table_item()
-            )
+        item = ThreeLineIconListItem(
+            IconLeftWidget(icon='flower'),
+            id=last_entry["id"],
+            text=str(last_entry["species"]),
+            secondary_text=str("Abundance " + str(last_entry["abundance"])),
+            tertiary_text=str(last_entry["timestamp"]),
+            on_release=lambda x: self.click_table_item()
         )
+        self.ids.record_table.add_widget(item)
+        self.table_items[last_entry["id"]] = item
 
     def click_table_item(self):
         print("Item clicked!")
