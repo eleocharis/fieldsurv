@@ -2,8 +2,8 @@ from kivy.lang import Builder
 from kivymd.uix.screen import MDScreen
 
 
-Builder.load_file('create_project.kv')
+Builder.load_file('running_projects.kv')
 
 
-class CreateProject(MDScreen):
+class RunningProjects(MDScreen):
         pass

@@ -1,0 +1,76 @@
+<UserSettings>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        #size_hint_y: None
+        #height: root.height/2
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        padding: 20
+        spacing: 10
+
+        MDLabel:
+            text: "Personal Data and Settings"
+            halign: 'center'
+            font_style: 'H4'
+
+        MDLabel:
+            text: "These data are used to prepare species lists for auto completion and your language naming"
+            multiline: True
+
+        MDTextField:
+            id: user_name
+            hint_text: "Your Name"
+            helper_text: "Name will be added to lists when exported"
+
+        MDTextField:
+            id: institution
+            hint_text: "Your Institution"
+            helper_text: "Might be useful for collaborative work"
+
+        MDGridLayout:
+            cols: 2
+            spacing: 15
+
+            MDTextField:
+                id: country
+                hint_text: "Current Country"
+                helper_text: "In which country you would like record species"
+                on_text_validate: language.focus = True
+
+            MDFloatingActionButton:
+                id: country_button
+                icon: 'map'
+                on_press: root.country_dropdown.open()
+
+            MDTextField:
+                id: language
+                text: ""
+                hint_text: "Language"
+                helper_text: "For which language you want to get vernacular names"
+
+            MDFloatingActionButton:
+                id: language_button
+                icon: 'flower'
+                on_press: root.language_dropdown.open()
+
+        MDCard:
+            id: taxon_buttons
+            size: root.width, "130dp"
+            md_bg_color: app.theme_cls.accent_color[0], app.theme_cls.accent_color[1], app.theme_cls.accent_color[2], 0.3
+
+        MDFillRoundFlatButton:
+            text: "Upload lists"
+            on_release: root.get_species_lists()
+
+        MDFillRoundFlatButton:
+            text: "Switch to dark theme"
+            #on_release: app.switch_theme_style()
+            pos_hint: {"center_x": .5}
+
+
+        MDFillRoundFlatButton:
+            text: "Save & Go Back"
+            pos_hint: {'center_x': .5}
+            on_press:
+                root.save_user_settings()
+                app.root.current = 'menu'
+                root.manager.transition.direction = 'right'

@@ -1,0 +1,20 @@
+<Autocomplete>:
+    BoxLayout:
+        orientation: 'vertical'
+        adaptive_height: True
+
+        MDTextField:
+            id: tf
+            hint_text: "Autofill"
+            helper_text: "Autofill hard tryouts, vrooowwwwwwmm!"
+            on_text: root.create_suggestions(*args)
+
+        MDCard:
+            #size_hint_y: None
+            size: root.width, "130dp"
+            md_bg_color: app.theme_cls.accent_color[0], app.theme_cls.accent_color[1], app.theme_cls.accent_color[2], 0.3
+
+            StackLayout:
+                id: word_suggests
+                padding: "8dp"
+                spacing: "2dp"

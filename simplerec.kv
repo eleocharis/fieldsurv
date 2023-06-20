@@ -1,92 +1,156 @@
 #:import MapView kivy_garden.mapview.MapView
 
 <SimpleRec>:
-    name: 'simple_rec'
+    MapView:
+        id: map
+        lat: 48
+        lon: 7.82
+        zoom: 11
+
+    # Buttons free on the screen
+    MDFloatLayout:
+        MDFloatingActionButton:
+            id: set_map_button
+            icon: 'layers'
+            pos_hint: {'center_x': 0.9, "center_y": 0.95}
+            md_bg_color: app.theme_cls.accent_color
+            on_press: root.map_dropdown.open()
+
+        MDFloatingActionButton:
+            id: show_records_button
+            icon: 'view-headline'
+            pos_hint: {'center_x': 0.1, "center_y": 0.95}
+            md_bg_color: app.theme_cls.accent_color
+            on_press: root.show_record_table(record_table_layout, show_records_button)
+
+        MDFloatingActionButton:
+            id: show_input_button
+            icon: 'plus'
+            pos_hint: {'center_x': 0.9, "center_y": 0.06}
+            md_bg_color: app.theme_cls.accent_color
+            on_press: root.show_input_field(input_field, show_input_button)
+
+
+    # TextFields, Tables and other things popping up when called.
+    MDBoxLayout:
+        id: record_table_layout
+        orientation: 'vertical'
+        size_hint: 1, .4
+        pos: 0, root.height
+        padding: 2
+
+        canvas.before:
+            Color:
+                rgba: 1, 1, 1, .8
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+
+        MDScrollView:
+
+            MDList:
+                id: record_table
+
+
 
     MDBoxLayout:
+        id: input_field
         orientation: 'vertical'
-        size: root.width, root.height
-        padding: 10
-        spacing: 20
+        adaptive_height: True
+        pos: 0, -self.height
+        padding: 20
+        spacing: 10
 
-        MapView:
-            id: smap
-            lat: 48
-            lon: 7.82
-            zoom: 11
+        canvas:
+            Color:
+                rgba: 1, 1, 1, .8
+            Rectangle:
+                pos: self.pos
+                size: self.size
 
-        MDGridLayout:
-            cols: 4
-            padding: 10
-            spacing: 20
+        MDBoxLayout:
+            orientation: 'horizontal'
+            adaptive_height: True
+            spacing: 10
 
             MDTextField:
                 id: date
-                text: ""
-                pos_hint: {'center_x': .5, 'center_y': .5}
                 hint_text: "Date of record"
-                helper_text: "Choose the date from the calender!"
+                helper_text: "Choose the date!"
 
             MDFloatingActionButton:
                 icon: "calendar"
-                on_release: root.show_date_picker()
+                on_press: root.show_date_picker()
 
             MDTextField:
                 id: time
-                text: ""
-                pos_hint: {'center_x': .5, 'center_y': .5}
-                hint_text: "time of record"
-                helper_text: "Choose the time from the clock"
+                hint_text: "Time of record"
+                helper_text: "Choose the time!"
+                validator: 'time'
 
             MDFloatingActionButton:
                 icon: "clock"
                 on_press: root.show_time_picker()
 
         MDTextField:
-            id: species
-            pos_hint: {'center_x': .5, 'center_y': .5}
+            id: tf
             hint_text: "Enter Species"
             helper_text: "Type in the scientific or vernacular name of the species you like to record"
+            on_text: root.create_suggestions(*args)
             on_text_validate: abundance.focus = True
+
+        MDCard:
+            size_hint_y: None
+            size: root.width, "130dp"
+            md_bg_color: app.theme_cls.accent_color[0], app.theme_cls.accent_color[1], app.theme_cls.accent_color[2], 0.5
+
+            MDStackLayout:
+                id: word_suggests
+                padding: "8dp"
+                spacing: "2dp"
 
         MDTextField:
             id: abundance
             text: "1"
-            pos_hint: {'center_x': .5, 'center_y': .5}
             hint_text: "Abundance"
             helper_text: "Type in how many individually you saw"
             on_text_validate:
                 root.add_points()
                 species.focus = True
 
+        MDBoxLayout:
+            orientation: 'horizontal'
+            adaptive_height: True
+            size_hint_x: 1
+            pos_hint: {'center_x': 0.5} #does not do what it should do...
+            spacing: 3
 
-        MDFillRoundFlatButton:
-            id: add_point_button
-            text: "Add point"
-            pos_hint: {'center_x': .5, 'center_y': .5}
-            focus: False
-            on_release:
-                root.add_points()
+            MDFillRoundFlatButton:
+                text: "Add point"
+                size_hint_x: 0.33
+                on_release: root.add_points()
 
-        MDFillRoundFlatButton:
-            text: "Save species records to disc"
-            pos_hint: {'center_x': .5, 'center_y': .5}
-            on_release: root.save_records()
+            MDFillRoundFlatButton:
+                text: "Save to disc"
+                size_hint_x: 0.33
+                on_release: root.save_records()
 
-        MDFillRoundFlatButton:
-            text: "Back to Menu"
-            pos_hint: {'center_x': .5, 'center_y': .5}
-            on_release:
-                app.root.current = 'menu'
-                root.manager.transition.direction = 'right'
+            MDFillRoundFlatButton:
+                text: "Back to Menu"
+                size_hint_x: 0.33
+                on_release:
+                    app.root.current = 'menu'
+                    root.manager.transition.direction = 'right'
 
 <PointCreator>:
-    source: ''
-    anchor_x: 0
-    anchor_y: 0
-    canvas.after:
+    source: 'images/transparent_marker.png' #is responsible for the field which enables a widget to be shown by press
+    anchor_x: 0.5
+    anchor_y: 0.5
+    canvas:
         Color:
-            rgba: [.3, .1, .9, 1]
+            rgba: [.9, .1, .2, 1]
         Line:
-            circle: self.x, self.y, 5
-            width: 1.2
+            circle: self.x+7, self.y+7, 5
+            width: 2
+    on_release: self.popup_info()
