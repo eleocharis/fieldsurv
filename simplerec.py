@@ -4,8 +4,8 @@ from kivy.core.window import Window
 from kivy_garden.mapview import MapMarkerPopup, MapSource
 from kivy.graphics import Color, Line
 from kivy.clock import Clock
+from kivy.properties import ObjectProperty
 from kivymd.uix.pickers import MDDatePicker, MDTimePicker
-from kivymd.uix.button import MDFloatingActionButtonSpeedDial
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.button import MDFillRoundFlatButton
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -17,18 +17,7 @@ from autocomplete_species import AutoCompleteSp
 import datetime
 import pandas as pd
 
-
 Builder.load_file('simplerec.kv')
-
-
-class SpeedDialButton(MDFloatingActionButtonSpeedDial):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.data = {
-            'Python': 'language-python',
-            'PHP': 'language-php',
-            'C++': 'language-cpp',
-        }
 
 
 class PointCreator(MapMarkerPopup):
@@ -43,48 +32,32 @@ class PointCreator(MapMarkerPopup):
 
     def info_popup(self):
         # Add info Popup
+        sr = SimpleRec()
         layout = MDBoxLayout(size_hint=(None, None), size=[200, 100], orientation='vertical', md_bg_color=[1, 1, 1, .8])
         label = MDLabel(text=f'{self.species}\nn: {self.abundance}\n{self.date}', theme_text_color="Custom",
                         text_color=[0, 0, 5, 1])
         layout.add_widget(label)
-        button = MDFillRoundFlatButton(text="Delete Point?", on_release=self.delete_point)
+        button = MDFillRoundFlatButton(text="Delete Point?", on_release=sr.delete_point)
         layout.add_widget(button)
         self.add_widget(layout)
-        #print(self.ids.items())
-        #print(self.id)
-
-    def delete_point(self, button):
-        # not jet working properly
-        sr = SimpleRec()
-
-        # remove point from Table
-        #print()
-        print(button.parent.parent.parent.id)
-        sr.ids.record_table.remove_widget(sr.table_items[str(button.parent.parent.parent.id)])
-
-        # remove point from records
-        sr.records = sr.records[sr.records["id"] != str(button.parent.parent.parent.id)]
-        print(sr.records)
-
-        # Remove point from map
-        sr.ids.map.remove_widget(button.parent.parent.parent)
-        #SimpleRec = sr
-
 
 
 class SimpleRec(MDScreen, AutoCompleteSp):
-
+    record_table = ObjectProperty(None)
+    records = ObjectProperty(None)
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.file = 'data/simple_point_records.csv'
-        self.records = None
         self.next_id = None
-        self.points = {}
+        # self.points = {}
+        self.records = None
+        #self.record_table = None
         self.table_items = {}
-        self.map_source_management()
-        self.read_point_records_file()
         self.ids.date.text = datetime.date.today().strftime("%Y-%m-%d")
         self.ids.time.text = datetime.datetime.now().strftime("%H:%M")
+
+        self.map_source_management()
+        self.read_point_records_file()
         Clock.schedule_interval(lambda dt: self.crosshair(), 1)
 
     def map_source_management(self):
@@ -127,14 +100,14 @@ class SimpleRec(MDScreen, AutoCompleteSp):
         print(self.records)
 
         # Add points to the Table
-        self.fill_records_table(point_attributes)
+        self.fill_record_table(point_attributes)
 
         # Set the points on the map
         x = self.ids.map.lat
         y = self.ids.map.lon
         point = PointCreator(lat=self.ids.map.lat, lon=self.ids.map.lon, x=x, y=y, spec=self.ids.tf.text,
                              abu=self.ids.abundance, date=f'{self.ids.date.text} {self.ids.time.text}', id=self.next_id)
-        self.points[self.next_id] = point #store all points in a dict.
+        # self.points[self.next_id] = point #store all points in a dict.
         self.ids.map.add_widget(point)
 
         # Generate next id
@@ -146,6 +119,22 @@ class SimpleRec(MDScreen, AutoCompleteSp):
         self.ids.time.text = datetime.datetime.now().strftime("%H:%M")
         self.ids.tf.focus = True
 
+    def delete_point(self, button):
+        # remove point from Table
+        record_id = str(button.parent.parent.parent.id)
+        print(record_id)
+        print(self.ids.record_table.children)
+        print(self.table_items[record_id])
+        self.ids.record_table.remove_widget(self.table_items[record_id])
+        print(self.ids.record_table.children)
+
+        # remove point from records
+        self.records = self.records.loc[self.records["id"].astype(str) != str(record_id)]
+        print(self.records)
+
+        # Remove point from map
+        self.ids.map.remove_widget(button.parent.parent.parent)
+
     def read_point_records_file(self):
         # reads recorded data from the previous session and creates the points
         if Path(self.file).is_file():
@@ -155,11 +144,11 @@ class SimpleRec(MDScreen, AutoCompleteSp):
                 lat, lon = float(row["lat"]), float(row["lon"])
                 point = PointCreator(lat=lat, lon=lon, x=lat, y=lon, spec=row["species"], abu=row["abundance"],
                                      date=row["timestamp"], id=row["id"])
-                self.points[row["id"]] = point  # store all points in a dict.
+                # self.points[row["id"]] = point  # store all points in a dict.
                 self.ids.map.add_widget(point)
 
-                # add the entry to the Table
-                self.fill_records_table(row)
+                # add points to the Table
+                self.fill_record_table(row)
 
             # create next ID
             self.next_id = str("F" + str(int(self.records.iloc[-1]["id"][1:]) + 1))
@@ -220,7 +209,7 @@ class SimpleRec(MDScreen, AutoCompleteSp):
         self.map_dropdown.dismiss()
         print(MapSource.providers.values())
 
-    def fill_records_table(self, last_entry):
+    def fill_record_table(self, last_entry):
         item = ThreeLineIconListItem(
             IconLeftWidget(icon='flower'),
             id=last_entry["id"],
