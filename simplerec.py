@@ -41,7 +41,7 @@ class PointCreator(MapMarkerPopup):
         self.date = date
         self.id = id
 
-    def popup_info(self):
+    def info_popup(self):
         # Add info Popup
         layout = MDBoxLayout(size_hint=(None, None), size=[200, 100], orientation='vertical', md_bg_color=[1, 1, 1, .8])
         label = MDLabel(text=f'{self.species}\nn: {self.abundance}\n{self.date}', theme_text_color="Custom",
