@@ -21,20 +21,21 @@ Builder.load_file('simplerec.kv')
 
 
 class PointCreator(MapMarkerPopup):
-    def __init__(self, x, y, spec, abu, date, id, **kwargs):
+    def __init__(self, x, y, spec, abu, date, point_id, **kwargs):
         super().__init__(**kwargs)
         self.x = x
         self.y = y
         self.species = spec
-        self.abundance = abu
+        self.abundance = str(abu)
         self.date = date
-        self.id = id
+        self.id = point_id
+        print(f'{kwargs}')
 
     def info_popup(self):
         # Add info Popup
         sr = SimpleRec()
         layout = MDBoxLayout(size_hint=(None, None), size=[200, 100], orientation='vertical', md_bg_color=[1, 1, 1, .8])
-        label = MDLabel(text=f'{self.species}\nn: {self.abundance}\n{self.date}', theme_text_color="Custom",
+        label = MDLabel(text=f'{self.species}\n {self.date}', theme_text_color="Custom",
                         text_color=[0, 0, 5, 1])
         layout.add_widget(label)
         button = MDFillRoundFlatButton(text="Delete Point?", on_release=sr.delete_point)
@@ -44,17 +45,19 @@ class PointCreator(MapMarkerPopup):
 
 class SimpleRec(MDScreen, AutoCompleteSp):
     record_table = ObjectProperty(None)
-    records = ObjectProperty(None)
+    # records = ObjectProperty(None)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.file = 'data/simple_point_records.csv'
         self.next_id = None
         # self.points = {}
-        self.records = None
-        #self.record_table = None
+        self.records = pd.DataFrame
+        # self.record_table = None
         self.table_items = {}
         self.ids.date.text = datetime.date.today().strftime("%Y-%m-%d")
         self.ids.time.text = datetime.datetime.now().strftime("%H:%M")
+        self.map_dropdown = None
 
         self.map_source_management()
         self.read_point_records_file()
@@ -90,9 +93,9 @@ class SimpleRec(MDScreen, AutoCompleteSp):
 
     def add_points(self):
         # Add points to the records DataFrame
-        point_attributes = {"id": self.next_id,
-                            "species": self.ids.tf.text,
-                            "abundance": self.ids.abundance.text,
+        point_attributes = {"id": str(self.next_id),
+                            "species": str(self.ids.tf.text).strip(),
+                            "abundance": str(self.ids.abundance.text),
                             "timestamp": f'{self.ids.date.text} {self.ids.time.text}',
                             "lat": self.ids.map.lat,
                             "lon": self.ids.map.lon}
@@ -106,7 +109,8 @@ class SimpleRec(MDScreen, AutoCompleteSp):
         x = self.ids.map.lat
         y = self.ids.map.lon
         point = PointCreator(lat=self.ids.map.lat, lon=self.ids.map.lon, x=x, y=y, spec=self.ids.tf.text,
-                             abu=self.ids.abundance, date=f'{self.ids.date.text} {self.ids.time.text}', id=self.next_id)
+                             abu=self.ids.abundance, date=f'{self.ids.date.text} {self.ids.time.text}',
+                             point_id=self.next_id)
         # self.points[self.next_id] = point #store all points in a dict.
         self.ids.map.add_widget(point)
 
@@ -118,15 +122,17 @@ class SimpleRec(MDScreen, AutoCompleteSp):
         self.ids.abundance.text = "1"
         self.ids.time.text = datetime.datetime.now().strftime("%H:%M")
         self.ids.tf.focus = True
+        return self.records, self.record_table
 
     def delete_point(self, button):
         # remove point from Table
         record_id = str(button.parent.parent.parent.id)
         print(record_id)
-        print(self.ids.record_table.children)
+        print(self.record_table.children)
         print(self.table_items[record_id])
-        self.ids.record_table.remove_widget(self.table_items[record_id])
-        print(self.ids.record_table.children)
+        self.record_table.remove_widget(self.table_items[record_id])
+        self.table_items.pop(record_id)
+        print(self.record_table.children)
 
         # remove point from records
         self.records = self.records.loc[self.records["id"].astype(str) != str(record_id)]
@@ -134,6 +140,7 @@ class SimpleRec(MDScreen, AutoCompleteSp):
 
         # Remove point from map
         self.ids.map.remove_widget(button.parent.parent.parent)
+        return self.records, self.record_table
 
     def read_point_records_file(self):
         # reads recorded data from the previous session and creates the points
@@ -143,7 +150,7 @@ class SimpleRec(MDScreen, AutoCompleteSp):
             for index, row in self.records.iterrows():
                 lat, lon = float(row["lat"]), float(row["lon"])
                 point = PointCreator(lat=lat, lon=lon, x=lat, y=lon, spec=row["species"], abu=row["abundance"],
-                                     date=row["timestamp"], id=row["id"])
+                                     date=row["timestamp"], point_id=row["id"])
                 # self.points[row["id"]] = point  # store all points in a dict.
                 self.ids.map.add_widget(point)
 
