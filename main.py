@@ -1,3 +1,4 @@
+__version__ = "0.1.0"
 from kivymd.app import MDApp
 from kivymd.uix.screenmanager import MDScreenManager
 from kivy.core.window import Window
