@@ -1,11 +1,12 @@
 from kivymd.app import MDApp
 from kivy.uix.widget import Widget
-# from kivy.lang import Builder
+from kivy.lang import Builder
 from kivy.clock import Clock
 from kivymd.uix.button import MDFillRoundFlatButton
 from usersettings import SPEC_AUT_C_DICT
+from usersettings import SPECIES_LISTS
 
-# Builder.load_file('autocomplete.kv')
+Builder.load_file('autocomplete.kv')
 
 
 class AutoCompleteSp(Widget):
@@ -36,6 +37,15 @@ class AutoCompleteSp(Widget):
                                         if key.startswith(tf_input[1])]
             except:
                 pass
+
+        # filter the vernacular name list:
+        for index, row in SPECIES_LISTS.iterrows():
+            vern_name = str(row["vernacularName"])
+            print(vern_name)
+            if tf_input[0] in vern_name:
+                filtered_suggestions.append(vern_name)
+                break # hier das funktioniert nicht
+
 
         # create suggestion buttons in the MDStackLayout with id 'word suggest':
         # by pressing the button the "paste" method is applied

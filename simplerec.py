@@ -14,6 +14,8 @@ from kivymd.uix.list import ThreeLineIconListItem, IconLeftWidget
 from kivy.animation import Animation
 from pathlib import Path
 from autocomplete_species import AutoCompleteSp
+from usersettings import SPEC_AUT_C_DICT
+from usersettings import SPECIES_LISTS
 import datetime
 import pandas as pd
 
@@ -46,7 +48,6 @@ class PointCreator(MapMarkerPopup):
 class SimpleRec(MDScreen, AutoCompleteSp):
     record_table = ObjectProperty(None)
     # records = ObjectProperty(None)
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.file = 'data/simple_point_records.csv'
@@ -93,8 +94,22 @@ class SimpleRec(MDScreen, AutoCompleteSp):
 
     def add_points(self):
         # Add points to the records DataFrame
+        # Evaluate if vernacular or scientific name was input and add the other on respectively.
+        global SPECIES_LISTS
+        print(SPECIES_LISTS)
+        print(list(SPECIES_LISTS.columns))
+        print(str(self.ids.tf.text).strip())
+        if "Aeshna affinis Vander Linden, 1820" in SPECIES_LISTS["sciName"]:
+            sciName = str(self.ids.tf.text).strip()
+            species_row = SPECIES_LISTS.query("sciName" == sciName)
+            vernacularName = species_row.iloc[0]["vernacularName"]
+
+        else:
+            vernacularName = str(self.ids.tf.text).strip()
+
         point_attributes = {"id": str(self.next_id),
-                            "species": str(self.ids.tf.text).strip(),
+                            "sciName": sciName,
+                            "vernacularName": vernacularName,
                             "abundance": str(self.ids.abundance.text),
                             "timestamp": f'{self.ids.date.text} {self.ids.time.text}',
                             "lat": self.ids.map.lat,

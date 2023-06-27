@@ -11,12 +11,12 @@ from collections import defaultdict
 import json
 import pandas as pd
 
-# Looks up which for which taxon (species groups) lists are available.
+# Looks up, for which taxon (species groups) lists are available.
 p = Path('../fieldsurv/data/species_lists').glob("**/*.csv")
 files = [x for x in p if x.is_file()]
 TAXON_LIST = [str(x).split("_")[-1][:-4] for x in files]  # Creates a list of taxon out of the spec_country_taxon.csv
-SPECIES_LISTS = {}  # Holds all species lists which are uploaded by the
-SPEC_AUT_C_DICT = defaultdict(list)
+SPECIES_LISTS = pd.DataFrame()  # Holds all species lists which are uploaded by the user
+SPEC_AUT_C_DICT = defaultdict(list)  # Dict of genus keys with species epitheton as values.
 
 Builder.load_file('usersettings.kv')
 
@@ -65,7 +65,7 @@ class UserSettings(MDScreen):
         global TAXON_LIST
         self.taxon_button_list = {}  # this list stores all buttons references.
 
-        # Prepere the widget structure:
+        # Prepare the widget structure:
         scroll_view = ScrollView(size_hint=(1, None), size=(self.width, "130dp"))
         stack_layout = StackLayout(size_hint_y=None, size=[self.width, self.height], padding=["8dp", 0], spacing="2dp")
         stack_layout.bind(minimum_height=stack_layout.setter('height'))
@@ -90,34 +90,41 @@ class UserSettings(MDScreen):
         # Uploads species lists for all selected taxon buttons. into a dictionary.
         # key = taxon, item = DataFrame (csv of the Taxon)
         global SPECIES_LISTS
-        SPECIES_LISTS.clear()
+        SPECIES_LISTS = SPECIES_LISTS.iloc[0:0]
+        #print(SPECIES_LISTS)
+
         for taxon in self.taxon_pull_list:
             path = str("data/species_lists/spec_germany_" + taxon + ".csv")
+
             # Read the file into a dataframe
             df = pd.read_csv(path)
             # Store the dataframe in the dictionary using the filename as the key
-            SPECIES_LISTS[taxon] = df
+            # SPECIES_LISTS[taxon] = df
+            SPECIES_LISTS = SPECIES_LISTS._append(df)
+
+        SPECIES_LISTS.to_csv("test.csv", index=False)
+        #print(SPECIES_LISTS)
 
         # prepares the species lists into dictionaries, to filter for genus
         # and after only the species within the selected genus.
         global SPEC_AUT_C_DICT
         SPEC_AUT_C_DICT.clear()
 
-        for taxon in SPECIES_LISTS:
-            for index, row in SPECIES_LISTS[taxon].iterrows():
-                sp = row["sciName"]
-                try:
-                    genus = sp.split(" ", maxsplit=1)[0]
-                except:
-                    genus = []
-                try:
-                    species = sp.split(" ", maxsplit=1)[1]
-                except:
-                    species = []
-                try:
-                    SPEC_AUT_C_DICT[genus].append(species)
-                except:
-                    pass
+        for index, row in SPECIES_LISTS.iterrows():
+            sp = row["sciName"]
+            try:
+                genus = sp.split(" ", maxsplit=1)[0]
+            except:
+                genus = []
+            try:
+                species = sp.split(" ", maxsplit=1)[1]
+            except:
+                species = []
+            try:
+                SPEC_AUT_C_DICT[genus].append(species)
+            except:
+                pass
+        return SPECIES_LISTS, SPEC_AUT_C_DICT
 
     def save_user_settings(self):
         # saves all the user settings to the user_settings.json - file.
@@ -125,7 +132,7 @@ class UserSettings(MDScreen):
                               "country": self.ids.country.text, "language": self.ids.language.text,
                               "taxon": self.taxon_pull_list}
 
-        # take all usersettings from the fields
+        # take all usersettings from the settings fields
         json_object = json.dumps(dump_user_settings, indent=4)
 
         # Writing to sample.json
@@ -144,12 +151,12 @@ class UserSettings(MDScreen):
             self.ids.language.text = user_settings["language"]
             self.taxon_pull_list = user_settings["taxon"]
 
+            # Check buttons for selected species lists.
             for taxon, button in self.taxon_button_list.items():
                 if taxon in self.taxon_pull_list:
                     button.icon = 'check-circle'
-                    break
 
-            self.get_species_lists()
+                self.get_species_lists()
 
 
 if __name__ == '__main__':

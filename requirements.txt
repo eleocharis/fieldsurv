@@ -7,7 +7,7 @@ Kivy-Garden==0.1.5
 kivy-garden.mapview==1.0.6
 kivymd==1.1.1
 mapview==1.0.6
-numpy==1.24.3
+numpy==1.25.0
 pandas==2.0.2
 Pillow==9.5.0
 Pygments==2.15.1
@@ -16,4 +16,4 @@ pytz==2023.3
 requests==2.31.0
 six==1.16.0
 tzdata==2023.3
-urllib3==2.0.2
+urllib3==2.0.3

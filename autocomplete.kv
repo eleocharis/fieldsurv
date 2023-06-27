@@ -1,20 +1,22 @@
-<Autocomplete>:
+<AutocompleteSp>:
     BoxLayout:
         orientation: 'vertical'
-        adaptive_height: True
+        size_hint: None, None
+        size: root.width, root.height
 
         MDTextField:
             id: tf
-            hint_text: "Autofill"
-            helper_text: "Autofill hard tryouts, vrooowwwwwwmm!"
+            hint_text: "Enter Species"
+            helper_text: "Type in the scientific or vernacular name of the species you like to record"
             on_text: root.create_suggestions(*args)
+            on_text_validate: abundance.focus = True
 
         MDCard:
-            #size_hint_y: None
+            size_hint_y: None
             size: root.width, "130dp"
-            md_bg_color: app.theme_cls.accent_color[0], app.theme_cls.accent_color[1], app.theme_cls.accent_color[2], 0.3
+            md_bg_color: app.theme_cls.accent_color[0], app.theme_cls.accent_color[1], app.theme_cls.accent_color[2], 0.5
 
-            StackLayout:
+            MDStackLayout:
                 id: word_suggests
                 padding: "8dp"
                 spacing: "2dp"
