@@ -99,7 +99,7 @@ class SimpleRec(MDScreen, AutoCompleteSp):
         print(SPECIES_LISTS)
         print(list(SPECIES_LISTS.columns))
         print(str(self.ids.tf.text).strip())
-        if "Aeshna affinis Vander Linden, 1820" in SPECIES_LISTS["sciName"]:
+        if self.ids.tf.text.strip() in SPECIES_LISTS["sciName"]:
             sciName = str(self.ids.tf.text).strip()
             species_row = SPECIES_LISTS.query("sciName" == sciName)
             vernacularName = species_row.iloc[0]["vernacularName"]
