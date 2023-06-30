@@ -11,13 +11,13 @@ from kivymd.uix.button import MDFillRoundFlatButton
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.label import MDLabel
 from kivymd.uix.list import ThreeLineIconListItem, IconLeftWidget
+from kivymd.uix.dialog import MDDialog
 from kivy.animation import Animation
 from pathlib import Path
 from autocomplete_species import AutoCompleteSp
-from usersettings import SPEC_AUT_C_DICT
-from usersettings import SPECIES_LISTS
 import datetime
 import pandas as pd
+import sqlite3
 
 Builder.load_file('simplerec.kv')
 
@@ -27,17 +27,17 @@ class PointCreator(MapMarkerPopup):
         super().__init__(**kwargs)
         self.x = x
         self.y = y
-        self.species = spec
+        self.sciName = spec
         self.abundance = str(abu)
         self.date = date
         self.id = point_id
-        print(f'{kwargs}')
+        # print(f'{kwargs}')
 
     def info_popup(self):
         # Add info Popup
         sr = SimpleRec()
         layout = MDBoxLayout(size_hint=(None, None), size=[200, 100], orientation='vertical', md_bg_color=[1, 1, 1, .8])
-        label = MDLabel(text=f'{self.species}\n {self.date}', theme_text_color="Custom",
+        label = MDLabel(text=f'{self.sciName}\n {self.date}', theme_text_color="Custom",
                         text_color=[0, 0, 5, 1])
         layout.add_widget(label)
         button = MDFillRoundFlatButton(text="Delete Point?", on_release=sr.delete_point)
@@ -46,20 +46,19 @@ class PointCreator(MapMarkerPopup):
 
 
 class SimpleRec(MDScreen, AutoCompleteSp):
-    record_table = ObjectProperty(None)
-    # records = ObjectProperty(None)
+    record_table = ObjectProperty()
+    records = pd.DataFrame
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.file = 'data/simple_point_records.csv'
         self.next_id = None
         # self.points = {}
-        self.records = pd.DataFrame
         # self.record_table = None
         self.table_items = {}
         self.ids.date.text = datetime.date.today().strftime("%Y-%m-%d")
         self.ids.time.text = datetime.datetime.now().strftime("%H:%M")
         self.map_dropdown = None
-
         self.map_source_management()
         self.read_point_records_file()
         Clock.schedule_interval(lambda dt: self.crosshair(), 1)
@@ -67,7 +66,8 @@ class SimpleRec(MDScreen, AutoCompleteSp):
     def map_source_management(self):
         # add alternative map sources to the MapSource
         alternative_map_source = (0, 0, 19, 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-                        'Kartendaten: © OpenStreetMap-Mitwirkende, SRTM | Kartendarstellung: © OpenTopoMap (CC-BY-SA)')
+                                  'Kartendaten: © OpenStreetMap-Mitwirkende, '
+                                  'SRTM | Kartendarstellung: © OpenTopoMap (CC-BY-SA)')
         MapSource.providers["opentopomap"] = alternative_map_source
 
         # Dropdown menu for maps.
@@ -92,22 +92,37 @@ class SimpleRec(MDScreen, AutoCompleteSp):
             Line(points=[x, y - self.width*0.03, x, y + self.width*0.03], width=1, group=u"cross")
             Line(points=[x - self.width*0.03, y, x + self.width*0.03, y], width=1, group=u"cross")
 
-    def add_points(self):
+    def add_points(self):  # <------------ raise exception if empty ore deny saving!
         # Add points to the records DataFrame
         # Evaluate if vernacular or scientific name was input and add the other on respectively.
-        global SPECIES_LISTS
-        print(SPECIES_LISTS)
-        print(list(SPECIES_LISTS.columns))
-        print(str(self.ids.tf.text).strip())
-        if self.ids.tf.text.strip() in SPECIES_LISTS["sciName"]:
-            sciName = str(self.ids.tf.text).strip()
-            species_row = SPECIES_LISTS.query("sciName" == sciName)
-            vernacularName = species_row.iloc[0]["vernacularName"]
 
+        # Create Database connection:
+        conn = sqlite3.connect("data/fsurv.db")
+        species_list = pd.read_sql_query("SELECT sciName, vernacularName FROM species_list", conn)
+        conn.close()
+
+        # get the input species
+        species_input = self.ids.tf.text.strip()
+        sciName = ""
+        vernacularName = ""
+        if species_input == "":
+            self.open_feed_spec_input()
         else:
-            vernacularName = str(self.ids.tf.text).strip()
+            if species_input in list(species_list["sciName"]):
+                sciName = species_input
+                species_row = species_list[species_list["sciName"] == species_input]
+                vernacularName = species_row.iloc[0]["vernacularName"]
 
-        point_attributes = {"id": str(self.next_id),
+            elif species_input in list(species_list["vernacularName"]):
+                vernacularName = species_input
+                species_row = species_list[species_list["vernacularName"] == species_input]
+                sciName = species_row.iloc[0]["sciName"]
+
+            else:
+                sciName = species_input
+                vernacularName = "NA"
+
+        point_attributes = {"records_id": str(self.next_id),
                             "sciName": sciName,
                             "vernacularName": vernacularName,
                             "abundance": str(self.ids.abundance.text),
@@ -115,7 +130,24 @@ class SimpleRec(MDScreen, AutoCompleteSp):
                             "lat": self.ids.map.lat,
                             "lon": self.ids.map.lon}
         self.records.loc[len(self.records.index)] = point_attributes
-        print(self.records)
+
+            # print(self.records)
+
+        # add a row to the database
+        # Create Database connection:
+        conn = sqlite3.connect("data/fsurv.db")
+        cursor = conn.cursor()
+        columns = ", ".join(point_attributes.keys())
+        placeholders = ":" + ", :".join(point_attributes.keys())
+        query = f'INSERT INTO records ({columns}) VALUES ({placeholders})'
+        # Iterate over the dictionary and insert the data
+        cursor.execute(query, point_attributes)
+        conn.commit()
+        db_contents = cursor.execute("SELECT * FROM records")
+        print(db_contents)
+        for row in db_contents:
+            print(row)
+        conn.close()
 
         # Add points to the Table
         self.fill_record_table(point_attributes)
@@ -130,53 +162,66 @@ class SimpleRec(MDScreen, AutoCompleteSp):
         self.ids.map.add_widget(point)
 
         # Generate next id
-        self.next_id = str("F" + str(int(self.records.iloc[-1]["id"][1:]) + 1))
+        self.next_id = str("F" + str(int(self.records.iloc[-1]["records_id"][1:]) + 1))
 
         # Empty fields and set focus
         self.ids.tf.text = ""
         self.ids.abundance.text = "1"
         self.ids.time.text = datetime.datetime.now().strftime("%H:%M")
         self.ids.tf.focus = True
-        return self.records, self.record_table
 
     def delete_point(self, button):
-        # remove point from Table
-        record_id = str(button.parent.parent.parent.id)
-        print(record_id)
-        print(self.record_table.children)
-        print(self.table_items[record_id])
-        self.record_table.remove_widget(self.table_items[record_id])
-        self.table_items.pop(record_id)
-        print(self.record_table.children)
+        # delete a species record
+        records_id = str(button.parent.parent.parent.id)
+        print(records_id)
 
         # remove point from records
-        self.records = self.records.loc[self.records["id"].astype(str) != str(record_id)]
-        print(self.records)
+        self.records = self.records.loc[self.records["records_id"].astype(str) != str(records_id)]
+        #print(self.records)
+
+        # remove point from records db
+        # Create Database connection:
+        conn = sqlite3.connect("data/fsurv.db")
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM records WHERE records_id = ?', (records_id,))
+        db_contents = cursor.execute("SELECT * FROM records")
+        print(db_contents)
+        for row in db_contents:
+            print(row)
+        conn.commit()
+        conn.close()
+
+        # remove point from Table
+        # print(self.ids.record_table.children)
+        # print(self.table_items[records_id])
+        self.ids.record_table.remove_widget(self.table_items[records_id])
+        self.table_items.pop(records_id)
 
         # Remove point from map
         self.ids.map.remove_widget(button.parent.parent.parent)
-        return self.records, self.record_table
 
     def read_point_records_file(self):
         # reads recorded data from the previous session and creates the points
         if Path(self.file).is_file():
-            self.records = pd.read_csv(self.file)
+            conn = sqlite3.connect("data/fsurv.db")
+            self.records = pd.read_sql_query("SELECT * FROM records", conn)
+            conn.close()
 
             for index, row in self.records.iterrows():
                 lat, lon = float(row["lat"]), float(row["lon"])
-                point = PointCreator(lat=lat, lon=lon, x=lat, y=lon, spec=row["species"], abu=row["abundance"],
-                                     date=row["timestamp"], point_id=row["id"])
-                # self.points[row["id"]] = point  # store all points in a dict.
+                point = PointCreator(lat=lat, lon=lon, x=lat, y=lon, spec=row["sciName"], abu=row["abundance"],
+                                     date=row["timestamp"], point_id=row["records_id"])
+                # self.points[row["records_id"]] = point  # store all points in a dict.
                 self.ids.map.add_widget(point)
 
                 # add points to the Table
                 self.fill_record_table(row)
 
             # create next ID
-            self.next_id = str("F" + str(int(self.records.iloc[-1]["id"][1:]) + 1))
+            self.next_id = str("F" + str(int(self.records.iloc[-1]["records_id"][1:]) + 1))
 
         else:
-            self.records = pd.DataFrame(columns=["id", "species", "abundance", "timestamp", "lat", "lon"])
+            self.records = pd.DataFrame(columns=["records_id", "sciName", "vernacularName", "abundance", "timestamp", "lat", "lon"])
             self.next_id = "F1"
 
     def save_records(self):
@@ -204,6 +249,10 @@ class SimpleRec(MDScreen, AutoCompleteSp):
     def on_cancel(self, instance, value):
         # Events called when the "CANCEL" dialog box button is clicked.
         pass
+
+    def open_feed_spec_input(self):
+        dialog = FeedSpecInput()
+        dialog.open()
 
     def show_input_field(self, input_field, show_input_button):
         # moves the input_field into the screen
@@ -234,14 +283,14 @@ class SimpleRec(MDScreen, AutoCompleteSp):
     def fill_record_table(self, last_entry):
         item = ThreeLineIconListItem(
             IconLeftWidget(icon='flower'),
-            id=last_entry["id"],
-            text=str(last_entry["species"]),
+            id=last_entry["records_id"],
+            text=str(f'{last_entry["sciName"]} | {last_entry["vernacularName"]}'),
             secondary_text=str("Abundance " + str(last_entry["abundance"])),
             tertiary_text=str(last_entry["timestamp"]),
             on_release=lambda x: self.click_table_item()
         )
         self.ids.record_table.add_widget(item)
-        self.table_items[last_entry["id"]] = item
+        self.table_items[last_entry["records_id"]] = item
 
     def click_table_item(self):
         print("Item clicked!")
@@ -266,3 +315,21 @@ class SimpleRec(MDScreen, AutoCompleteSp):
                 duration=0.2)
             move_button.start(show_records_button)
             self.ids.show_records_button.icon = 'view-headline'
+
+
+class FeedSpecInput(MDDialog):
+    def __init__(self, **kwargs):
+        super().__init__(
+            title="Nothing can not be add!",
+            text="You have to fucking type in a species! Stupid!",
+            radius = [20, 20, 20, 20],
+            buttons=[
+                MDFillRoundFlatButton(
+                    text="OK",
+                    on_release=self.close_feed_spec_input
+                ),
+            ],
+            ** kwargs)
+
+    def close_feed_spec_input(self, instance):
+        self.dismiss()
