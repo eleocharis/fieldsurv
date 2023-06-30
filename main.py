@@ -1,7 +1,8 @@
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 from kivymd.app import MDApp
 from kivymd.uix.screenmanager import MDScreenManager
 from kivy.core.window import Window
+import sqlite3
 
 from menu import Menu
 from simplerec import SimpleRec
@@ -15,11 +16,26 @@ Window.size = (450, 950)
 
 class MainApp(MDApp):
     def build(self):
+        # Theming:
         self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = 'Teal'
         self.theme_cls.primary_hue = '700'
         self.theme_cls.accent_palette = 'Orange'
 
+        # Create Database connection:
+        conn = sqlite3.connect("data/fsurv.db")
+        # Create a Cursor:
+        cursor = conn.cursor()
+        # Create the Species table
+        cursor.execute("CREATE TABLE if not exists species_list(sciName text, vernacularName text, RL_status)")
+        # Create the record Table
+        cursor.execute("""CREATE TABLE if not exists records(records_id text, sciName text, vernacularName text,
+                       abundance text, timestamp text, lat real, lon real)""")
+        # Commit our changes and close connection.
+        conn.commit()
+        conn.close()
+
+        # Screen Handling
         screen_manager = MDScreenManager()
 
         menu = Menu(name='menu')
