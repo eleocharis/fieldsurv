@@ -12,6 +12,7 @@ from collections import defaultdict
 import pandas as pd
 import json
 import sqlite3
+
 Builder.load_file('usersettings.kv')
 
 
@@ -27,7 +28,6 @@ class UserSettings(MDScreen):
     genus_dict = defaultdict(list)
     # By user selected Taxon for autocompletion
     taxon_pull_list = []
-
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -63,8 +63,6 @@ class UserSettings(MDScreen):
             items=languages,
             width_mult=4)
         # print(country_list)
-
-
 
     def create_buttons_from_tax_list(self, taxon_button_card, width, height):
         # This method loads up all available Species lists in the "species_lists" folder
