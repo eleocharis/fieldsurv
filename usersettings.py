@@ -124,11 +124,15 @@ class UserSettings(MDScreen):
         for taxon in self.taxon_pull_list:
             path = str("data/species_lists/spec_germany_" + taxon + ".csv")
 
-            # Read the file into a dataframe
-            df = pd.read_csv(path)
+            # Read the file into a dataframe (try because someone could delete a list while it is
+            # still in the settingsfile than it crashes.
+            try:
+                new_lists = pd.read_csv(path)
+            except:
+                continue
             # Store the dataframe in the dictionary using the filename as the key
             # SPECIES_LISTS[taxon] = df
-            self.species_list = self.species_list._append(df)
+            self.species_list = pd.concat([self.species_list, new_lists], ignore_index = True, sort = False)
 
             # self.species_list.to_csv("test.csv", index=False)
             # print(self.species_list)

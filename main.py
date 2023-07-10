@@ -1,7 +1,5 @@
 __version__ = "0.2.0"
 
-# noinspection PyUnresolvedReferences
-import logfile_redirect
 from kivymd.app import MDApp
 from kivymd.uix.screenmanager import MDScreenManager
 from kivy.core.window import Window
