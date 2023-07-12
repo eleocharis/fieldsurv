@@ -3,7 +3,6 @@ from kivy.uix.widget import Widget
 from kivy.lang import Builder
 from kivy.clock import Clock
 from kivymd.uix.button import MDFillRoundFlatButton
-from kivy.utils import platform
 from usersettings import UserSettings
 import sqlite3
 import os
@@ -20,11 +19,6 @@ class AutoCompleteSp(Widget):
     """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-        if platform == 'android':
-            self.working_dir = self.user_data_dir
-        else:
-            self.working_dir = os.getcwd()  # Set a fallback directory for other platforms
 
     def create_suggestions(self, instance, value):
         tf_input = value.split()  # Split tf_input text into separate words
@@ -46,9 +40,12 @@ class AutoCompleteSp(Widget):
                 pass
 
         # Create Database connection:
-        conn = sqlite3.connect(os.path.join(self.working_dir, "data/fsurv.db"))
+        conn = sqlite3.connect(os.path.join("data", "fsurv.db"))
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM species_list")
+        try:
+            cursor.execute("SELECT vernacularName FROM species_list")
+        except:
+            print("sqlite3.OperationalError: no such column: vernacularName")
 
         # Fetch all the values from the column directly as a list
         species_list = [row[0] for row in cursor.fetchall()]

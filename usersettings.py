@@ -7,7 +7,6 @@ from kivymd.uix.menu import MDDropdownMenu
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.stacklayout import StackLayout
 from kivymd.uix.button import MDFillRoundFlatIconButton
-from kivy.utils import platform
 from collections import defaultdict
 import pandas as pd
 import sqlite3
@@ -33,21 +32,12 @@ class UserSettings(MDScreen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-        # handle android folder system:
-        if platform == 'android':
-            self.working_dir = self.user_data_dir
-        else:
-            self.working_dir = os.getcwd()  # Set a fallback directory for other platforms
-
         self.create_buttons_from_tax_list(self.taxon_button_card, self.height, self.width)
         self.load_taxon_selections()
         self.load_user_settings()
 
-        country_list = pd.read_csv(os.path.join(self.working_dir, 'data/country_lists_joined_adapted.csv'))
-
+        country_list = pd.read_csv(os.path.join("data", "country_lists_joined_adapted.csv"))
         # print(country_list)
-
         countries = [
             {"text": f'{item}',
              "viewclass": 'OneLineListItem',
@@ -64,7 +54,6 @@ class UserSettings(MDScreen):
              "viewclass": 'OneLineListItem',
              "on_release": lambda x=item: self.language_dropdown_callback(x)
              } for item in pd.unique(country_list.language)
-
         ]
         self.language_dropdown = MDDropdownMenu(
             caller=self.ids.language_button,
@@ -77,9 +66,9 @@ class UserSettings(MDScreen):
 
         # Looks up, for which taxon (species groups) lists are available.
         spec_lists = []
-        for root, dirs, files in os.walk(os.path.join(self.working_dir, 'data/species_lists')):
+        for root, dirs, files in os.walk(os.path.join("data", "species_lists")):
             for file in files:
-                if file.endswith('.csv'):
+                if file.endswith(".csv"):
                     spec_lists.append(os.path.join(root, file))
 
         print(spec_lists)
@@ -113,8 +102,8 @@ class UserSettings(MDScreen):
 
     def load_taxon_selections(self):
         # upload of user_settings at app startup
-        if os.path.exists(os.path.join(self.working_dir, 'data/user_settings.json')):
-            with open(os.path.join(self.working_dir, 'data/user_settings.json')) as us:
+        if os.path.exists(os.path.join("data", "user_settings.json")):
+            with open(os.path.join("data", "user_settings.json")) as us:
                 user_settings = json.load(us)
 
             self.taxon_pull_list = user_settings["taxon"]
@@ -134,7 +123,7 @@ class UserSettings(MDScreen):
 
         for taxon in self.taxon_pull_list:
             print(taxon)
-            path = os.path.join(self.working_dir, "data/species_lists/spec_germany_" + taxon + ".csv")
+            path = os.path.join("data", "species_lists", "spec_germany_" + taxon + ".csv")
 
             # Read the file into a dataframe (try because someone could delete a list while it is
             # still in the settingsfile than it crashes.
@@ -149,7 +138,7 @@ class UserSettings(MDScreen):
             # self.species_list.to_csv("test.csv", index=False)
 
         # Create Database connection:
-        conn = sqlite3.connect(os.path.join(self.working_dir, "data/fsurv.db"))
+        conn = sqlite3.connect(os.path.join("data", "fsurv.db"))
         # Save the DataFrame to the SQLite database
         self.species_list.to_sql('species_list', conn, if_exists='replace')
         # Close connection.
@@ -183,8 +172,8 @@ class UserSettings(MDScreen):
 
     def load_user_settings(self):
         # upload user_settings at app startup
-        if os.path.exists(os.path.join(self.working_dir, 'data/user_settings.json')):
-            with open(os.path.join(self.working_dir, 'data/user_settings.json')) as us:
+        if os.path.exists(os.path.join("data", "user_settings.json")):
+            with open(os.path.join("data", "user_settings.json")) as us:
                 user_settings = json.load(us)
 
             self.ids.user_name.text = user_settings["user_name"]
@@ -203,13 +192,13 @@ class UserSettings(MDScreen):
         json_object = json.dumps(dump_user_settings, indent=4)
 
         # Writing to sample.json
-        with open(os.path.join(self.working_dir, 'data/user_settings.json'), 'w+') as outfile:
+        with open(os.path.join("data", "user_settings.json"), 'w+') as outfile:
             outfile.write(json_object)
 
 if __name__ == '__main__':
     class MainApp(MDApp):
         def build(self):
-            self.theme_cls.theme_style = "Light"
+            self.theme_cls.theme_style = 'Light'
             self.theme_cls.primary_palette = 'Teal'
             self.theme_cls.primary_hue = '700'
             self.theme_cls.accent_palette = 'Orange'

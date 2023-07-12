@@ -13,11 +13,11 @@ from kivymd.uix.label import MDLabel
 from kivymd.uix.list import ThreeLineIconListItem, IconLeftWidget
 from kivymd.uix.dialog import MDDialog
 from kivy.animation import Animation
-from pathlib import Path
 from autocomplete_species import AutoCompleteSp
 import datetime
 import pandas as pd
 import sqlite3
+import os
 
 Builder.load_file('simplerec.kv')
 
@@ -95,14 +95,13 @@ class SimpleRec(MDScreen, AutoCompleteSp):
         # Evaluate if vernacular or scientific name was input and add the other on respectively.
 
         # Create Database connection:
-        conn = sqlite3.connect("data/fsurv.db")
+        conn = sqlite3.connect(os.path.join("data", "fsurv.db"))
         species_list = pd.read_sql_query("SELECT sciName, vernacularName FROM species_list", conn)
         conn.close()
 
         # get the input species
         species_input = self.ids.tf.text.strip()
-        sciName = ""
-        vernacularName = ""
+
         if species_input == "":
             self.open_feed_spec_input()
         else:
@@ -120,50 +119,50 @@ class SimpleRec(MDScreen, AutoCompleteSp):
                 sciName = species_input
                 vernacularName = "NA"
 
-        point_attributes = {"records_id": str(self.next_id),
-                            "sciName": sciName,
-                            "vernacularName": vernacularName,
-                            "abundance": str(self.ids.abundance.text),
-                            "timestamp": f'{self.ids.date.text} {self.ids.time.text}',
-                            "lat": self.ids.map.lat,
-                            "lon": self.ids.map.lon}
-        self.records.loc[len(self.records.index)] = point_attributes
+            point_attributes = {"records_id": str(self.next_id),
+                                "sciName": sciName,
+                                "vernacularName": vernacularName,
+                                "abundance": str(self.ids.abundance.text),
+                                "timestamp": f'{self.ids.date.text} {self.ids.time.text}',
+                                "lat": self.ids.map.lat,
+                                "lon": self.ids.map.lon}
+            self.records.loc[len(self.records.index)] = point_attributes
 
-        # add a row to the database
-        conn = sqlite3.connect("data/fsurv.db")
-        cursor = conn.cursor()
-        columns = ", ".join(point_attributes.keys())
-        placeholders = ":" + ", :".join(point_attributes.keys())
-        query = f'INSERT INTO records ({columns}) VALUES ({placeholders})'
-        # Iterate over the dictionary and insert the data
-        cursor.execute(query, point_attributes)
-        conn.commit()
-        db_contents = cursor.execute("SELECT * FROM records")
-        print(db_contents)
-        for row in db_contents:
-            print(row)
-        conn.close()
+            # add a row to the database
+            conn = sqlite3.connect(os.path.join("data", "fsurv.db"))
+            cursor = conn.cursor()
+            columns = ", ".join(point_attributes.keys())
+            placeholders = ":" + ", :".join(point_attributes.keys())
+            query = f'INSERT INTO records ({columns}) VALUES ({placeholders})'
+            # Iterate over the dictionary and insert the data
+            cursor.execute(query, point_attributes)
+            conn.commit()
+            db_contents = cursor.execute("SELECT * FROM records")
+            print(db_contents)
+            for row in db_contents:
+                print(row)
+            conn.close()
 
-        # Add points to the Table
-        self.fill_record_table(point_attributes)
+            # Add points to the Table
+            self.fill_record_table(point_attributes)
 
-        # Set the points on the map
-        x = self.ids.map.lat
-        y = self.ids.map.lon
-        point = PointCreator(lat=self.ids.map.lat, lon=self.ids.map.lon, x=x, y=y, spec=self.ids.tf.text,
-                             abu=self.ids.abundance, date=f'{self.ids.date.text} {self.ids.time.text}',
-                             point_id=self.next_id)
-        # self.points[self.next_id] = point #store all points in a dict.
-        self.ids.map.add_widget(point)
+            # Set the points on the map
+            x = self.ids.map.lat
+            y = self.ids.map.lon
+            point = PointCreator(lat=self.ids.map.lat, lon=self.ids.map.lon, x=x, y=y, spec=self.ids.tf.text,
+                                 abu=self.ids.abundance, date=f'{self.ids.date.text} {self.ids.time.text}',
+                                 point_id=self.next_id)
+            # self.points[self.next_id] = point #store all points in a dict.
+            self.ids.map.add_widget(point)
 
-        # Generate next id
-        self.next_id = str("F" + str(int(self.records.iloc[-1]["records_id"][1:]) + 1))
+            # Generate next id
+            self.next_id = str("F" + str(int(self.records.iloc[-1]["records_id"][1:]) + 1))
 
-        # Empty fields and set focus
-        self.ids.tf.text = ""
-        self.ids.abundance.text = "1"
-        self.ids.time.text = datetime.datetime.now().strftime("%H:%M")
-        self.ids.tf.focus = True
+            # Empty fields and set focus
+            self.ids.tf.text = ""
+            self.ids.abundance.text = "1"
+            self.ids.time.text = datetime.datetime.now().strftime("%H:%M")
+            self.ids.tf.focus = True
 
     def delete_point(self, button):
         # delete a species record
@@ -176,7 +175,7 @@ class SimpleRec(MDScreen, AutoCompleteSp):
 
         # remove point from records db
         # Create Database connection:
-        conn = sqlite3.connect("data/fsurv.db")
+        conn = sqlite3.connect(os.path.join("data", "fsurv.db"))
         cursor = conn.cursor()
         cursor.execute('DELETE FROM records WHERE records_id = ?', (records_id,))
         db_contents = cursor.execute("SELECT * FROM records")
@@ -197,27 +196,26 @@ class SimpleRec(MDScreen, AutoCompleteSp):
 
     def read_point_records_file(self):
         # reads recorded data from the previous session and creates the points
-        if Path(self.file).is_file():
-            conn = sqlite3.connect("data/fsurv.db")
-            self.records = pd.read_sql_query("SELECT * FROM records", conn)
-            conn.close()
+        conn = sqlite3.connect(os.path.join("data", "fsurv.db"))
+        self.records = pd.read_sql_query("SELECT * FROM records", conn)
+        conn.close()
 
-            for index, row in self.records.iterrows():
-                lat, lon = float(row["lat"]), float(row["lon"])
-                point = PointCreator(lat=lat, lon=lon, x=lat, y=lon, spec=row["sciName"], abu=row["abundance"],
-                                     date=row["timestamp"], point_id=row["records_id"])
-                # self.points[row["records_id"]] = point  # store all points in a dict.
-                self.ids.map.add_widget(point)
+        for index, row in self.records.iterrows():
+            lat, lon = float(row["lat"]), float(row["lon"])
+            point = PointCreator(lat=lat, lon=lon, x=lat, y=lon, spec=row["sciName"], abu=row["abundance"],
+                                 date=row["timestamp"], point_id=row["records_id"])
+            # self.points[row["records_id"]] = point  # store all points in a dict.
+            self.ids.map.add_widget(point)
 
-                # add points to the Table
-                self.fill_record_table(row)
+            # add points to the Table
+            self.fill_record_table(row)
 
-            # create next ID
+        # create next ID
+        try:
             self.next_id = str("F" + str(int(self.records.iloc[-1]["records_id"][1:]) + 1))
-
-        else:
-            self.records = pd.DataFrame(columns=["records_id", "sciName", "vernacularName", "abundance", "timestamp", "lat", "lon"])
+        except:
             self.next_id = "F1"
+
 
     def save_records(self):
         # this saves the recordings on the drive
