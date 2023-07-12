@@ -53,8 +53,6 @@ class SimpleRec(MDScreen, AutoCompleteSp):
         super().__init__(**kwargs)
         self.file = 'data/simple_point_records.csv'
         self.next_id = None
-        # self.points = {}
-        # self.record_table = None
         self.table_items = {}
         self.ids.date.text = datetime.date.today().strftime("%Y-%m-%d")
         self.ids.time.text = datetime.datetime.now().strftime("%H:%M")
@@ -92,7 +90,7 @@ class SimpleRec(MDScreen, AutoCompleteSp):
             Line(points=[x, y - self.width*0.03, x, y + self.width*0.03], width=1, group=u"cross")
             Line(points=[x - self.width*0.03, y, x + self.width*0.03, y], width=1, group=u"cross")
 
-    def add_points(self):  # <------------ raise exception if empty ore deny saving!
+    def add_points(self):
         # Add points to the records DataFrame
         # Evaluate if vernacular or scientific name was input and add the other on respectively.
 
@@ -131,10 +129,7 @@ class SimpleRec(MDScreen, AutoCompleteSp):
                             "lon": self.ids.map.lon}
         self.records.loc[len(self.records.index)] = point_attributes
 
-            # print(self.records)
-
         # add a row to the database
-        # Create Database connection:
         conn = sqlite3.connect("data/fsurv.db")
         cursor = conn.cursor()
         columns = ", ".join(point_attributes.keys())
