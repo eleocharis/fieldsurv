@@ -1,11 +1,12 @@
 __version__ = "0.2.1"
 
-# noinspection PyUnresolvedReferences
-import logfile_redirect
+# import logfile_redirect
 from kivymd.app import MDApp
 from kivymd.uix.screenmanager import MDScreenManager
 from kivy.core.window import Window
+from working_dir import working_dir
 import sqlite3
+import os
 
 from menu import Menu
 from simplerec import SimpleRec
@@ -25,8 +26,15 @@ class MainApp(MDApp):
         self.theme_cls.primary_hue = '700'
         self.theme_cls.accent_palette = 'Orange'
 
-        # Create Database connection:
-        conn = sqlite3.connect("data/fsurv.db")
+        # File path handling
+        # handle android folder system:
+        if platform == 'android':
+            self.working_dir = self.user_data_dir
+        else:
+            self.working_dir = os.getcwd()
+
+            # Create Database connection:
+        conn = sqlite3.connect(os.path.join(working_dir, "data/fsurv.db"))
         # Create a Cursor:
         cursor = conn.cursor()
         # Create the Species table
