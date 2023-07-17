@@ -171,7 +171,7 @@ class SimpleRec(MDScreen, AutoCompleteSp):
 
         # remove point from records
         self.records = self.records.loc[self.records["records_id"].astype(str) != str(records_id)]
-        #print(self.records)
+        # print(self.records)
 
         # remove point from records db
         # Create Database connection:
@@ -215,7 +215,6 @@ class SimpleRec(MDScreen, AutoCompleteSp):
             self.next_id = str("F" + str(int(self.records.iloc[-1]["records_id"][1:]) + 1))
         except:
             self.next_id = "F1"
-
 
     def save_records(self):
         # this saves the recordings on the drive

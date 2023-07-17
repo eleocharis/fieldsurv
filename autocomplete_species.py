@@ -45,7 +45,7 @@ class AutoCompleteSp(Widget):
         try:
             cursor.execute("SELECT vernacularName FROM species_list")
         except:
-            print("sqlite3.OperationalError: no such column: vernacularName")
+            print("sqlite3.OperationalError: no species list uploaded.")
 
         # Fetch all the values from the column directly as a list
         species_list = [row[0] for row in cursor.fetchall()]
