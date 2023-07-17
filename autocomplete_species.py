@@ -19,6 +19,7 @@ class AutoCompleteSp(Widget):
     """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        print("AutoCompleteSp.__init__ executed")
 
     def create_suggestions(self, instance, value):
         tf_input = value.split()  # Split tf_input text into separate words
@@ -63,6 +64,7 @@ class AutoCompleteSp(Widget):
         for suggestion in filtered_suggestions[:10]:
             button = MDFillRoundFlatButton(text=suggestion, id=suggestion, on_press=self.paste)
             self.ids.word_suggests.add_widget(button)
+        print("AutoCompleteSp.create_suggestions executed")
 
     def paste(self, button):
         """ Bring the button text (which is the previously generated suggestion to the textfield).
@@ -74,9 +76,11 @@ class AutoCompleteSp(Widget):
         # set_focus back to the text field does not work alone. it has to be scheduled.
         Clock.schedule_once(self.set_focus, 0.2)
         Clock.schedule_once(self.set_focus, 0.6)  # to make sure that it is placed also on slow machines.
+        print("AutoCompleteSp.paste executed")
 
     def set_focus(self, event):
         self.ids.tf.focus = True
+        print("AutoCompleteSp.set_focus executed")
 
 
 if __name__ == '__main__':

@@ -59,7 +59,7 @@ class UserSettings(MDScreen):
             caller=self.ids.language_button,
             items=languages,
             width_mult=4)
-        # print(country_list)
+        print("UserSettings.__init__ executed")
 
     def create_buttons_from_tax_list(self, taxon_button_card, width, height):
         # This method loads up all available Species lists in the "species_lists" folder
@@ -89,7 +89,7 @@ class UserSettings(MDScreen):
 
         button_scroll_view.add_widget(stack_layout)
         taxon_button_card.add_widget(button_scroll_view)
-
+        print("UserSettings.create_buttons_from_tax_list executed")
         return self.taxon_button_list
 
     def button_pressed(self, button):
@@ -99,6 +99,7 @@ class UserSettings(MDScreen):
         else:
             self.taxon_pull_list.remove(button.text)
             button.icon = 'circle'
+        print("UserSettings.button_pressed executed")
 
     def load_taxon_selections(self):
         # upload of user_settings at app startup
@@ -114,7 +115,7 @@ class UserSettings(MDScreen):
                     button.icon = 'check-circle'
                     print(taxon)
                     self.get_species_lists()
-
+        print("UserSettings.load_taxon_selections executed")
     def get_species_lists(self):
         # Uploads species lists for all selected taxon buttons into a dictionary.
 
@@ -163,6 +164,8 @@ class UserSettings(MDScreen):
                 self.genus_dict[genus].append(species)
             except:
                 pass
+        print("UserSettings.get_species_lists executed")
+
     def country_dropdown_callback(self, text_item):
         self.ids.country.text = text_item
 
@@ -180,6 +183,7 @@ class UserSettings(MDScreen):
             self.ids.institution.text = user_settings["institution"]
             self.ids.country.text = user_settings["country"]
             self.ids.language.text = user_settings["language"]
+        print("UserSettings.load_user_settings executed")
 
     def save_user_settings(self):
         print(self.taxon_pull_list)
@@ -194,6 +198,7 @@ class UserSettings(MDScreen):
         # Writing to sample.json
         with open(os.path.join("data", "user_settings.json"), 'w+') as outfile:
             outfile.write(json_object)
+        print("UserSettings.save_user_settings executed")
 
 if __name__ == '__main__':
     class MainApp(MDApp):

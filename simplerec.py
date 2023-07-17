@@ -31,7 +31,7 @@ class PointCreator(MapMarkerPopup):
         self.abundance = str(abu)
         self.date = date
         self.id = point_id
-        # print(f'{kwargs}')
+        print("PointCreator.__init__ executed")
 
     def info_popup(self):
         # Add info Popup
@@ -43,6 +43,7 @@ class PointCreator(MapMarkerPopup):
         button = MDFillRoundFlatButton(text="Delete Point?", on_release=sr.delete_point)
         layout.add_widget(button)
         self.add_widget(layout)
+        print("PointCreator.info_popup executed")
 
 
 class SimpleRec(MDScreen, AutoCompleteSp):
@@ -60,6 +61,7 @@ class SimpleRec(MDScreen, AutoCompleteSp):
         self.map_source_management()
         self.read_point_records_file()
         Clock.schedule_interval(lambda dt: self.crosshair(), 1)
+        print("SimpleRec.__init__ executed")
 
     def map_source_management(self):
         # add alternative map sources to the MapSource
@@ -81,6 +83,7 @@ class SimpleRec(MDScreen, AutoCompleteSp):
             width_mult=3,
             elevation=0,
             background_color=[1, 1, 1, .8])
+        print("SimpleRec.map_source_management executed")
 
     def crosshair(self):
         x, y = self.ids.map.center
@@ -89,6 +92,7 @@ class SimpleRec(MDScreen, AutoCompleteSp):
             Color(0, 0, 0, 1)
             Line(points=[x, y - self.width*0.03, x, y + self.width*0.03], width=1, group=u"cross")
             Line(points=[x - self.width*0.03, y, x + self.width*0.03, y], width=1, group=u"cross")
+        # print("SimpleRec.crosshair executed")
 
     def add_points(self):
         # Add points to the records DataFrame
@@ -163,6 +167,7 @@ class SimpleRec(MDScreen, AutoCompleteSp):
             self.ids.abundance.text = "1"
             self.ids.time.text = datetime.datetime.now().strftime("%H:%M")
             self.ids.tf.focus = True
+        print("SimpleRec.add_points executed")
 
     def delete_point(self, button):
         # delete a species record
@@ -193,6 +198,7 @@ class SimpleRec(MDScreen, AutoCompleteSp):
 
         # Remove point from map
         self.ids.map.remove_widget(button.parent.parent.parent)
+        print("SimpleRec.delete_point executed")
 
     def read_point_records_file(self):
         # reads recorded data from the previous session and creates the points
@@ -215,28 +221,34 @@ class SimpleRec(MDScreen, AutoCompleteSp):
             self.next_id = str("F" + str(int(self.records.iloc[-1]["records_id"][1:]) + 1))
         except:
             self.next_id = "F1"
+        print("SimpleRec.read_point_records_file executed")
 
     def save_records(self):
         # this saves the recordings on the drive
         self.records.to_csv(self.file, index=False)
+        print("SimpleRec.save_records executed")
 
     def show_date_picker(self):
         # Open date picker dialog.
         date_dialog = MDDatePicker()
         date_dialog.bind(on_save=self.get_date, on_cancel=self.on_cancel)
         date_dialog.open()
+        print("SimpleRec.show_date_picker executed")
 
     def show_time_picker(self):
         # Open time picker dialog.
         time_dialog = MDTimePicker()
         time_dialog.bind(on_cancel=self.on_cancel, time=self.get_time)
         time_dialog.open()
+        print("SimpleRec.show_time_picker executed")
 
     def get_time(self, instance, time):
         self.ids.time.text = str(time.strftime("%H:%M"))
+        print("SimpleRec.get_time executed")
 
     def get_date(self, instance, value, date_range):
         self.ids.date.text = str(value)
+        print("SimpleRec.get_date executed")
 
     def on_cancel(self, instance, value):
         # Events called when the "CANCEL" dialog box button is clicked.
@@ -245,6 +257,7 @@ class SimpleRec(MDScreen, AutoCompleteSp):
     def open_feed_spec_input(self):
         dialog = FeedSpecInput()
         dialog.open()
+        print("SimpleRec.open_feed_spec_input executed")
 
     def show_input_field(self, input_field, show_input_button):
         # moves the input_field into the screen
@@ -266,11 +279,13 @@ class SimpleRec(MDScreen, AutoCompleteSp):
                 duration=0.2)
             move_button.start(show_input_button)
             self.ids.show_input_button.icon = 'plus'
+        print("SimpleRec.show_input_field executed")
 
     def set_map_source(self, selected_map):
         self.ids.map.map_source = selected_map
         self.map_dropdown.dismiss()
         print(MapSource.providers.values())
+        print("SimpleRec.set_map_source executed")
 
     def fill_record_table(self, last_entry):
         item = ThreeLineIconListItem(
@@ -283,9 +298,10 @@ class SimpleRec(MDScreen, AutoCompleteSp):
         )
         self.ids.record_table.add_widget(item)
         self.table_items[last_entry["records_id"]] = item
+        print("SimpleRec.fill_record_table executed")
 
     def click_table_item(self):
-        print("Item clicked!")
+        print("SimpleRec.click_table_item executed")
 
     def show_record_table(self, record_table_layout, show_records_button):
         # moves the record list into the screen
@@ -307,6 +323,7 @@ class SimpleRec(MDScreen, AutoCompleteSp):
                 duration=0.2)
             move_button.start(show_records_button)
             self.ids.show_records_button.icon = 'view-headline'
+        print("SimpleRec.click_table_item executed")
 
 
 class FeedSpecInput(MDDialog):
@@ -322,6 +339,8 @@ class FeedSpecInput(MDDialog):
                 ),
             ],
             ** kwargs)
+        print("FeedSpecInput.__init__ executed")
 
     def close_feed_spec_input(self, instance):
         self.dismiss()
+        print("FeedSpecInput.close_feed_spec_input executed")
