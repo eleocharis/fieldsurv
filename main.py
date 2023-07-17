@@ -55,7 +55,7 @@ class MainApp(MDApp):
 
         settings = UserSettings(name='settings')
         screen_manager.add_widget(settings)
-
+        print("MainApp.build executed")
         return screen_manager
 
 
