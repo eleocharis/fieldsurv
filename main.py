@@ -1,8 +1,9 @@
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 
 # import logfile_redirect
 from kivymd.app import MDApp
-from kivymd.uix.screenmanager import MDScreenManager
+from kivy.uix.screenmanager import ScreenManager
+from kivy.utils import platform
 from kivy.core.window import Window
 import sqlite3
 import os
@@ -12,6 +13,7 @@ from simplerec import SimpleRec
 from running_projects import RunningProjects
 from create_project import CreateProject
 from usersettings import UserSettings
+from gpshelper import GpsHelper
 
 # Set app size
 Window.size = (450, 950)
@@ -19,13 +21,21 @@ Window.size = (450, 950)
 
 class MainApp(MDApp):
     def build(self):
+        # Permissions:
+        if platform == "android":
+            from android.permissions import request_permissions, Permission  #, check_permission
+            request_permissions([Permission.INTERNET, Permission.GPS])
+
         # Theming:
         self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = 'Teal'
         self.theme_cls.primary_hue = '700'
         self.theme_cls.accent_palette = 'Orange'
+        self.theme_cls.material_style = "M2"
 
-            # Create Database connection:
+        GpsHelper().run
+
+        # Create Database connection:
         conn = sqlite3.connect(os.path.join("data", "fsurv.db"))
         # Create a Cursor:
         cursor = conn.cursor()
@@ -39,7 +49,7 @@ class MainApp(MDApp):
         conn.close()
 
         # Screen Handling
-        screen_manager = MDScreenManager()
+        screen_manager = ScreenManager()
 
         menu = Menu(name='menu')
         screen_manager.add_widget(menu)

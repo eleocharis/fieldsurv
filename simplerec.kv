@@ -1,4 +1,6 @@
 #:import MapView kivy_garden.mapview.MapView
+#:import GpsBlinker gpsblinker.GpsBlinker
+#:include gpsblinker.kv
 
 <SimpleRec>:
 
@@ -9,6 +11,10 @@
         lat: 48
         lon: 7.82
         zoom: 11
+        GpsBlinker:
+            id: blinker
+            lat: self.parent.parent.lat
+            lon: self.parent.parent.lon
 
     # Buttons free on the screen
     MDFloatLayout:
@@ -32,6 +38,17 @@
             pos_hint: {'center_x': 0.9, "center_y": 0.06}
             md_bg_color: app.theme_cls.accent_color
             on_press: root.show_input_field(input_field, show_input_button)
+
+        MDFloatingActionButton:
+            id: customize_points
+            icon: 'palette'
+            pos_hint: {'center_x': 0.25, 'center_y':0.95}
+            md_bg_color: app.theme_cls.accent_color
+            #on_press: root.ids.ddt.open(self)
+
+        #MDDropdownMenu:
+            #id: ddt
+            #text: "ösösö"
 
 
     # TextFields, Tables and other things popping up when called.

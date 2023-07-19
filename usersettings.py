@@ -1,8 +1,7 @@
 from kivymd.app import MDApp
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty
-from kivymd.uix.screen import MDScreen
-from kivymd.uix.screenmanager import MDScreenManager
+from kivy.uix.screenmanager import Screen, ScreenManager
 from kivymd.uix.menu import MDDropdownMenu
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.stacklayout import StackLayout
@@ -17,7 +16,7 @@ import os
 Builder.load_file('usersettings.kv')
 
 
-class UserSettings(MDScreen):
+class UserSettings(Screen):
     prep_spec_lists = ObjectProperty()
     # collected buttons which go into the Card
     taxon_button_card = ObjectProperty()
@@ -71,7 +70,7 @@ class UserSettings(MDScreen):
                 if file.endswith(".csv"):
                     spec_lists.append(os.path.join(root, file))
 
-        print(spec_lists)
+        # print(spec_lists)
         # Creates a list of taxon out of the spec_country_taxon.csv
         taxon_list = [str(x).split("_")[-1][:-4] for x in spec_lists]
 
@@ -208,7 +207,7 @@ if __name__ == '__main__':
             self.theme_cls.primary_hue = '700'
             self.theme_cls.accent_palette = 'Orange'
 
-            screen_manager = MDScreenManager()
+            screen_manager = ScreenManager()
 
             user_data = UserSettings(name='user_data')
             screen_manager.add_widget(user_data)

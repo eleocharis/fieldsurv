@@ -50,7 +50,7 @@ class AutoCompleteSp(Widget):
 
         # Fetch all the values from the column directly as a list
         species_list = [row[0] for row in cursor.fetchall()]
-        print(species_list)
+        # print(species_list)
         conn.close()
 
         # filter the vernacular name list:

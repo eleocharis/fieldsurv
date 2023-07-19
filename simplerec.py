@@ -1,5 +1,5 @@
 from kivy.lang import Builder
-from kivymd.uix.screen import MDScreen
+from kivy.uix.screenmanager import Screen
 from kivy.core.window import Window
 from kivy_garden.mapview import MapMarkerPopup, MapSource
 from kivy.graphics import Color, Line
@@ -38,7 +38,7 @@ class PointCreator(MapMarkerPopup):
         sr = SimpleRec()
         layout = MDBoxLayout(size_hint=(None, None), size=[200, 100], orientation='vertical', md_bg_color=[1, 1, 1, .8])
         label = MDLabel(text=f'{self.sciName}\n {self.date}', theme_text_color="Custom",
-                        text_color=[0, 0, 5, 1])
+                        text_color=[1,1,1,1])
         layout.add_widget(label)
         button = MDFillRoundFlatButton(text="Delete Point?", on_release=sr.delete_point)
         layout.add_widget(button)
@@ -46,7 +46,7 @@ class PointCreator(MapMarkerPopup):
         print("PointCreator.info_popup executed")
 
 
-class SimpleRec(MDScreen, AutoCompleteSp):
+class SimpleRec(Screen, AutoCompleteSp):
     record_table = ObjectProperty()
     records = pd.DataFrame
 
@@ -324,6 +324,10 @@ class SimpleRec(MDScreen, AutoCompleteSp):
             move_button.start(show_records_button)
             self.ids.show_records_button.icon = 'view-headline'
         print("SimpleRec.click_table_item executed")
+
+    def customize_points(self):
+
+        print("PointCreator.customize_points executed")
 
 
 class FeedSpecInput(MDDialog):

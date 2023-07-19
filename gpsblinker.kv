@@ -1,0 +1,22 @@
+<GpsBlinker>:
+    source: ''
+    default_blink_size: 25
+    blink_size: 25
+    outer_opacity: 1
+
+    canvas.before:
+        # Outer circle
+        Color:
+            rgba: app.theme_cls.primary_color[:3] + [root.outer_opacity]
+        RoundedRectangle:
+            radius: [root.blink_size/2, ]
+            size: root.blink_size, root.blink_size
+            pos: root.pos[0] + root.size[0]/2 - root.blink_size/2, root.pos[1]
+
+        # Inner circle:
+        Color:
+            rgb: app.theme_cls.accent_color
+        RoundedRectangle:
+            radius: [root.default_blink_size/2, ]
+            size: root.default_blink_size, root.default_blink_size
+            pos: root.pos[0] + root.size[0]/2 - root.default_blink_size/2, root.pos[1] + root.size[1]/2 - root.default_blink_size/2
