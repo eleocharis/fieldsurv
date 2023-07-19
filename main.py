@@ -1,6 +1,5 @@
 __version__ = "0.2.2"
 
-# import logfile_redirect
 from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager
 from kivy.utils import platform
@@ -22,16 +21,16 @@ Window.size = (450, 950)
 class MainApp(MDApp):
     def build(self):
         # Permissions:
-        if platform == "android":
+        if platform == 'android':
             from android.permissions import request_permissions, Permission  #, check_permission
-            request_permissions([Permission.INTERNET, Permission.GPS])
+            request_permissions(Permission.INTERNET)
 
         # Theming:
-        self.theme_cls.theme_style = "Light"
+        self.theme_cls.theme_style = 'Light'
         self.theme_cls.primary_palette = 'Teal'
         self.theme_cls.primary_hue = '700'
         self.theme_cls.accent_palette = 'Orange'
-        self.theme_cls.material_style = "M2"
+        self.theme_cls.material_style = 'M2'
 
         GpsHelper().run
 
