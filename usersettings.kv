@@ -1,3 +1,5 @@
+#:import threading threading
+
 <UserSettings>:
 
     taxon_button_card: taxon_button_card
@@ -62,7 +64,7 @@
 
         MDFillRoundFlatButton:
             text: "Upload lists"
-            on_release: root.get_species_lists()
+            on_release: threading.Thread(target=root.get_species_lists).start()
 
         MDFillRoundFlatButton:
             text: "Switch to dark theme"

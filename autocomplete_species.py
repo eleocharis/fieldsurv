@@ -4,6 +4,7 @@ from kivy.lang import Builder
 from kivy.clock import Clock
 from kivymd.uix.button import MDFillRoundFlatButton
 from usersettings import UserSettings
+import threading
 import sqlite3
 import os
 
@@ -19,7 +20,10 @@ class AutoCompleteSp(Widget):
     """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        threading.Thread(target=self.create_suggestions).start()
         print("AutoCompleteSp.__init__ executed")
+
 
     def create_suggestions(self, instance, value):
         tf_input = value.split()  # Split tf_input text into separate words
