@@ -5,6 +5,7 @@
 <SimpleRec>:
 
     record_table: record_table
+    blinker: blinker
 
     MapView:
         id: map
@@ -13,38 +14,37 @@
         zoom: 11
         GpsBlinker:
             id: blinker
-            lat: self.parent.parent.lat
-            lon: self.parent.parent.lon
 
     # Buttons free on the screen
     MDFloatLayout:
         MDFloatingActionButton:
-            id: set_map_button
-            icon: 'layers'
-            pos_hint: {'center_x': 0.9, "center_y": 0.95}
-            md_bg_color: app.theme_cls.accent_color
-            on_press: root.map_dropdown.open()
-
-        MDFloatingActionButton:
-            id: show_records_button
-            icon: 'view-headline'
-            pos_hint: {'center_x': 0.1, "center_y": 0.95}
-            md_bg_color: app.theme_cls.accent_color
-            on_press: root.show_record_table(record_table_layout, show_records_button)
-
-        MDFloatingActionButton:
             id: show_input_button
             icon: 'plus'
-            pos_hint: {'center_x': 0.9, "center_y": 0.06}
+            pos_hint: {'center_x': 0.9, "center_y": 0.95}
             md_bg_color: app.theme_cls.accent_color
             on_press: root.show_input_field(input_field, show_input_button)
 
         MDFloatingActionButton:
+            id: show_records_button
+            icon: 'view-headline'
+            pos_hint: {'center_x': 0.1, "center_y": 0.05}
+            md_bg_color: app.theme_cls.accent_color
+            on_press: root.show_record_table(record_table_layout, show_records_button)
+
+        MDFloatingActionButton:
             id: customize_points
             icon: 'palette'
-            pos_hint: {'center_x': 0.25, 'center_y':0.95}
+            pos_hint: {'center_x': 0.25, 'center_y':0.05}
             md_bg_color: app.theme_cls.accent_color
             #on_press: root.ids.ddt.open(self)
+
+        MDFloatingActionButton:
+            id: set_map_button
+            icon: 'layers'
+            pos_hint: {'center_x': 0.4, "center_y": 0.05}
+            md_bg_color: app.theme_cls.accent_color
+            on_press: root.map_dropdown.open()
+
 
         #MDDropdownMenu:
             #id: ddt
@@ -52,11 +52,12 @@
 
 
     # TextFields, Tables and other things popping up when called.
+    # Records Table
     MDBoxLayout:
         id: record_table_layout
         orientation: 'vertical'
         size_hint: 1, .4
-        pos: 0, root.height
+        pos: 0, -self.height
         padding: 2
 
         canvas.before:
@@ -70,12 +71,12 @@
             MDList:
                 id: record_table
 
-
+    # Data input Field
     MDBoxLayout:
         id: input_field
         orientation: 'vertical'
         adaptive_height: True
-        pos: 0, -self.height
+        pos: 0, root.height
         padding: 20
         spacing: 10
 
@@ -115,7 +116,7 @@
             hint_text: "Enter Species"
             helper_text: "Type in the scientific or vernacular name of the species you like to record"
             on_text: root.create_suggestions(*args)
-            on_text_validate: abundance.focus = True
+            on_text_validate: root.ids.abundance.focus = True
 
         MDCard:
             size_hint_y: None
@@ -134,7 +135,7 @@
             helper_text: "Type in how many individually you saw"
             on_text_validate:
                 root.add_points()
-                species.focus = True
+                root.ids.tf.focus = True
 
         MDBoxLayout:
             orientation: 'horizontal'
@@ -161,13 +162,17 @@
                     root.manager.transition.direction = 'right'
 
 <PointCreator>:
+    point_size: 50
+    point_color: [.9, .1, .2, 1]
+
     source: 'images/transparent_marker.png' #is responsible for the field which enables a widget to be shown by press
     anchor_x: 0.5
     anchor_y: 0.5
     canvas:
         Color:
-            rgba: [.9, .1, .2, 1]
-        Line:
-            circle: self.x+7, self.y+7, 5
-            width: 2
+            rgba: root.point_color
+        RoundedRectangle:
+            radius: [root.point_size/2, ]
+            size: root.point_size, root.point_size
+            pos: root.pos[0] + root.size[0]/2 - root.point_size/2, root.pos[1] + root.size[1]/2 - root.point_size/2
     on_release: self.info_popup()
