@@ -1,19 +1,21 @@
 #:import MapView kivy_garden.mapview.MapView
-#:import GpsBlinker gpsblinker.GpsBlinker
-#:include gpsblinker.kv
+#:import GpsPointer gpspointer.GpsPointer
+#:include gpspointer.kv
 
 <SimpleRec>:
 
     record_table: record_table
-    blinker: blinker
+    pointer: pointer
 
     MapView:
         id: map
         lat: 48
         lon: 7.82
         zoom: 11
-        GpsBlinker:
-            id: blinker
+        GpsPointer:
+            id: pointer
+            #lat: 48.1
+            #lon: 7.82
 
     # Buttons free on the screen
     MDFloatLayout:
@@ -130,7 +132,7 @@
 
         MDTextField:
             id: abundance
-            text: "1"
+            text: ""
             hint_text: "Abundance"
             helper_text: "Type in how many individually you saw"
             on_text_validate:

@@ -7,12 +7,11 @@ class GpsHelper:
     has_centered_map = False
 
     def run(self):
-        # Get a reference to the GpsBlinker
+        # Get a reference to the GpsPointer
         simple_rec_screen = App.get_running_app().root.get_screen('simple_rec')
-        gps_blinker = simple_rec_screen.blinker
+        gps_pointer = simple_rec_screen.pointer
 
-        # Starting the GpsBlinker
-        gps_blinker.blink()
+        gps_pointer.point_anim()
 
         # Request permissions on Android
         if platform == 'android':
@@ -21,34 +20,34 @@ class GpsHelper:
                 if all([res for res in results]):
                     print("Got all GPS permissions")
                     from plyer import gps
-                    gps.configure(on_location=self.update_blinker_position,
+                    gps.configure(on_location=self.update_pointer_position,
                                   on_status=self.on_auth_status)
                     gps.start(minTime=1000, minDistance=0)
                 else:
                     print("Did not got all GPS permissions")
 
-            request_permissions([Permission.ACCESS_COARSE_LOCATION,
-                                 Permission.ACCESS_FINE_LOCATION], callback)
+            request_permissions([Permission.ACCESS_FINE_LOCATION],
+                                Permission.ACCESS_COARSE_LOCATION, callback)
 
         # Configure GPS
         if platform == 'ios':
             from plyer import gps
-            gps.configure(on_location=self.update_blinker_position,
+            gps.configure(on_location=self.update_pointer_position,
                           on_status=self.on_auth_status)
             gps.start(minTime=1000, minDistance=0)
 
-    def update_blinker_position(self, *args, **kwargs):
+    def update_pointer_position(self,gps_pointer, *args, **kwargs):
         my_lat = kwargs['lat']
         my_lon = kwargs['lon']
 
-        gps_blinker = App.get_running_app().root.ids.map.ids.blinker
+        gps_blinker = App.get_running_app().root.get_screen('simple_rec').simple_rec_screen.pointer
         gps_blinker.lat = my_lat
         gps_blinker.lon = my_lon
         print("GPS position ", my_lat, my_lon)
 
         # Center map on GPS position on startup
         if not self.has_centered_map:
-            map = App.get_running_app().root.ids.map
+            map = App.get_running_app().root.get_screen('simple_rec').simple_rec_screen.map
             map.center_on(my_lat, my_lon)
             self.has_centered_map = True
 

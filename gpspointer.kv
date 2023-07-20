@@ -1,0 +1,22 @@
+<GpsPointer>:
+    source: 'images/transparent_marker.png'
+    outer_size: 25
+    inner_size: 20
+    outer_opacity: 1
+
+    canvas.before:
+        # Outer circle
+        Color:
+            rgb: [1, 1, 1, 1]
+        RoundedRectangle:
+            radius: [root.outer_size/2, ]
+            size: root.outer_size, root.outer_size
+            pos: root.pos[0] + root.size[0]/2 - root.outer_size/2, root.pos[1] + root.size[1]/2 - root.outer_size/2
+
+        # Inner circle:
+        Color:
+            rgba: app.theme_cls.primary_color
+        RoundedRectangle:
+            radius: [root.inner_size/2, ]
+            size: root.inner_size, root.inner_size
+            pos: root.pos[0] + root.size[0]/2 - root.inner_size/2, root.pos[1] + root.size[1]/2 - root.inner_size/2

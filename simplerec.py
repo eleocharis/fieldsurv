@@ -50,7 +50,7 @@ class PointCreator(MapMarkerPopup):
 class SimpleRec(Screen, AutoCompleteSp):
     record_table = ObjectProperty()
     records = pd.DataFrame
-    blinker = ObjectProperty()
+    pointer = ObjectProperty()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -268,7 +268,7 @@ class SimpleRec(Screen, AutoCompleteSp):
             show_input.start(input_field)
 
             move_button = Animation(
-                pos_hint={'center_x': 0.9, "center_y": self.ids.input_field.height/Window.size[1]*1.1},
+                pos_hint={'center_x': 0.9, "center_y": self.ids.input_field.height/Window.size[1] * 0.95},
                 duration=0.2)
             move_button.start(show_input_button)
             self.ids.show_input_button.icon = 'chevron-up'
