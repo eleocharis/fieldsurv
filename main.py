@@ -1,9 +1,9 @@
-__version__ = "0.2.2"
+__version__ = "0.3.1"
 
 from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager
 from kivy.utils import platform
-from kivy.core.window import Window
+from android_permissions import AndroidPermissions
 import sqlite3
 import os
 
@@ -14,25 +14,16 @@ from create_project import CreateProject
 from usersettings import UserSettings
 from gpshelper import GpsHelper
 
-# Set app size
-Window.size = (450, 950)
 
 
 class MainApp(MDApp):
     def build(self):
-        # Permissions:
-        if platform == 'android':
-            from android.permissions import request_permissions, Permission  #, check_permission
-            request_permissions(Permission.INTERNET)
-
         # Theming:
         self.theme_cls.theme_style = 'Light'
         self.theme_cls.primary_palette = 'Teal'
         self.theme_cls.primary_hue = '700'
         self.theme_cls.accent_palette = 'Orange'
         self.theme_cls.material_style = 'M2'
-
-        GpsHelper().run
 
         # Create Database connection:
         conn = sqlite3.connect(os.path.join("data", "fsurv.db"))
@@ -42,10 +33,16 @@ class MainApp(MDApp):
         cursor.execute("CREATE TABLE if not exists species_list(sciName text, vernacularName text, RL_status)")
         # Create the record Table
         cursor.execute("""CREATE TABLE if not exists records(records_id text, sciName text, vernacularName text,
-                       abundance text, timestamp text, lat real, lon real)""")
+                                       abundance text, timestamp text, lat real, lon real)""")
         # Commit our changes and close connection.
         conn.commit()
         conn.close()
+
+        # Screensize for Desktop
+        if platform == 'linux' or platform == 'win' or platform == 'macosx':
+            from kivy.core.window import Window
+            Window.size = (450, 950)
+            print(platform)
 
         # Screen Handling
         screen_manager = ScreenManager()
@@ -64,8 +61,22 @@ class MainApp(MDApp):
 
         settings = UserSettings(name='settings')
         screen_manager.add_widget(settings)
+
         print("MainApp.build executed")
         return screen_manager
+
+    def on_start(self):
+        # Handle Permissions
+        self.dont_gc = AndroidPermissions(self.start_app)
+
+
+    def start_app(self):
+        # Delete Permission functions to get rid of garbage.
+        self.dont_gc = None
+
+        # Init GPS position on map
+        GpsHelper().run()
+
 
 
 if __name__ == '__main__':
