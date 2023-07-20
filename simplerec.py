@@ -14,6 +14,7 @@ from kivymd.uix.list import ThreeLineIconListItem, IconLeftWidget
 from kivymd.uix.dialog import MDDialog
 from kivy.animation import Animation
 from autocomplete_species import AutoCompleteSp
+from kivy.app import App
 import datetime
 import pandas as pd
 import sqlite3
@@ -38,7 +39,7 @@ class PointCreator(MapMarkerPopup):
         sr = SimpleRec()
         layout = MDBoxLayout(size_hint=(None, None), size=[200, 100], orientation='vertical', md_bg_color=[1, 1, 1, .8])
         label = MDLabel(text=f'{self.sciName}\n {self.date}', theme_text_color="Custom",
-                        text_color=[1,1,1,1])
+                        text_color=App.get_running_app().theme_cls.primary_color)
         layout.add_widget(label)
         button = MDFillRoundFlatButton(text="Delete Point?", on_release=sr.delete_point)
         layout.add_widget(button)
@@ -49,6 +50,7 @@ class PointCreator(MapMarkerPopup):
 class SimpleRec(Screen, AutoCompleteSp):
     record_table = ObjectProperty()
     records = pd.DataFrame
+    blinker = ObjectProperty()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -262,20 +264,20 @@ class SimpleRec(Screen, AutoCompleteSp):
     def show_input_field(self, input_field, show_input_button):
         # moves the input_field into the screen
         if self.ids.show_input_button.icon == 'plus':
-            show_input = Animation(pos=[0, 0], duration=0.2)
+            show_input = Animation(pos=[0, Window.size[1]-self.ids.input_field.height], duration=0.2)
             show_input.start(input_field)
 
             move_button = Animation(
                 pos_hint={'center_x': 0.9, "center_y": self.ids.input_field.height/Window.size[1]*1.1},
                 duration=0.2)
             move_button.start(show_input_button)
-            self.ids.show_input_button.icon = 'chevron-down'
+            self.ids.show_input_button.icon = 'chevron-up'
         else:
-            show_input = Animation(pos=[0, -self.ids.input_field.height], duration=0.2)
+            show_input = Animation(pos=[0, Window.size[1]], duration=0.2)
             show_input.start(input_field)
 
             move_button = Animation(
-                pos_hint={'center_x': 0.9, "center_y": 0.06},
+                pos_hint={'center_x': 0.9, "center_y": 0.95},
                 duration=0.2)
             move_button.start(show_input_button)
             self.ids.show_input_button.icon = 'plus'
@@ -306,20 +308,20 @@ class SimpleRec(Screen, AutoCompleteSp):
     def show_record_table(self, record_table_layout, show_records_button):
         # moves the record list into the screen
         if self.ids.show_records_button.icon == 'view-headline':
-            show_records = Animation(pos=[0, Window.size[1]-self.ids.record_table_layout.height], duration=0.2)
+            show_records = Animation(pos=[0, 0], duration=0.2)
             show_records.start(record_table_layout)
 
             move_button = Animation(
-                pos_hint={'center_x': 0.1, "center_y": (1 - self.ids.record_table_layout.height / Window.size[1]) * 0.92},
+                pos_hint={'center_x': 0.1, "center_y": (self.ids.record_table_layout.height / Window.size[1]) * 1.1},
                 duration=0.2)
             move_button.start(show_records_button)
-            self.ids.show_records_button.icon = 'chevron-up'
+            self.ids.show_records_button.icon = 'chevron-down'
         else:
-            show_records = Animation(pos=[0, Window.size[1]], duration=0.2)
+            show_records = Animation(pos=[0, -self.ids.input_field.height], duration=0.2)
             show_records.start(record_table_layout)
 
             move_button = Animation(
-                pos_hint={'center_x': 0.1, "center_y": 0.94},
+                pos_hint={'center_x': 0.1, "center_y": 0.05},
                 duration=0.2)
             move_button.start(show_records_button)
             self.ids.show_records_button.icon = 'view-headline'
