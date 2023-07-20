@@ -1,12 +1,15 @@
 from kivy.app import App
 from kivy.utils import platform
 from kivymd.uix.dialog import MDDialog
+
+
 class GpsHelper:
     has_centered_map = False
 
     def run(self):
         # Get a reference to the GpsBlinker
-        gps_blinker = App.get_running_app().root.ids.map.ids.blinker
+        simple_rec_screen = App.get_running_app().root.get_screen('simple_rec')
+        gps_blinker = simple_rec_screen.blinker
 
         # Starting the GpsBlinker
         gps_blinker.blink()
@@ -14,10 +17,13 @@ class GpsHelper:
         # Request permissions on Android
         if platform == 'android':
             from android.permissions import request_permissions, Permission
-
             def callback(permission, results):
                 if all([res for res in results]):
                     print("Got all GPS permissions")
+                    from plyer import gps
+                    gps.configure(on_location=self.update_blinker_position,
+                                  on_status=self.on_auth_status)
+                    gps.start(minTime=1000, minDistance=0)
                 else:
                     print("Did not got all GPS permissions")
 
@@ -25,7 +31,7 @@ class GpsHelper:
                                  Permission.ACCESS_FINE_LOCATION], callback)
 
         # Configure GPS
-        if platform == 'android' or platform == 'ios':
+        if platform == 'ios':
             from plyer import gps
             gps.configure(on_location=self.update_blinker_position,
                           on_status=self.on_auth_status)
@@ -55,3 +61,6 @@ class GpsHelper:
 
     def open_gps_access_popup(self):
         dialog = MDDialog(title="GPS Error", text="Enable GPS Access on mobile")
+        dialog.size_hint = [.8, .8]
+        dialog.pos_hint = {'center_x': .5, 'center_y': .5}
+        dialog.open()
