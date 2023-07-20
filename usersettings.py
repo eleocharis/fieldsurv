@@ -115,6 +115,7 @@ class UserSettings(Screen):
                     print(taxon)
                     self.get_species_lists()
         print("UserSettings.load_taxon_selections executed")
+
     def get_species_lists(self):
         # Uploads species lists for all selected taxon buttons into a dictionary.
 
