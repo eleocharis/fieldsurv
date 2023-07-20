@@ -1,7 +1,6 @@
-from kivymd.app import MDApp
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty
-from kivy.uix.screenmanager import Screen, ScreenManager
+from kivy.uix.screenmanager import Screen
 from kivymd.uix.menu import MDDropdownMenu
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.stacklayout import StackLayout
@@ -199,20 +198,3 @@ class UserSettings(Screen):
         with open(os.path.join("data", "user_settings.json"), 'w+') as outfile:
             outfile.write(json_object)
         print("UserSettings.save_user_settings executed")
-
-if __name__ == '__main__':
-    class MainApp(MDApp):
-        def build(self):
-            self.theme_cls.theme_style = 'Light'
-            self.theme_cls.primary_palette = 'Teal'
-            self.theme_cls.primary_hue = '700'
-            self.theme_cls.accent_palette = 'Orange'
-
-            screen_manager = ScreenManager()
-
-            user_data = UserSettings(name='user_data')
-            screen_manager.add_widget(user_data)
-
-            return screen_manager
-
-    MainApp().run()

@@ -1,14 +1,10 @@
-from kivymd.app import MDApp
 from kivy.uix.widget import Widget
-from kivy.lang import Builder
 from kivy.clock import Clock
 from kivymd.uix.button import MDFillRoundFlatButton
 from usersettings import UserSettings
 import threading
 import sqlite3
 import os
-
-Builder.load_file('autocomplete.kv')
 
 
 class AutoCompleteSp(Widget):
@@ -85,16 +81,3 @@ class AutoCompleteSp(Widget):
     def set_focus(self, event):
         self.ids.tf.focus = True
         print("AutoCompleteSp.set_focus executed")
-
-
-if __name__ == '__main__':
-    class MainApp(MDApp):
-        def build(self):
-            self.theme_cls.theme_style = "Light"
-            self.theme_cls.primary_palette = 'Teal'
-            self.theme_cls.primary_hue = '700'
-            self.theme_cls.accent_palette = 'Orange'
-
-            auto_comp = AutoCompleteSp()
-            return auto_comp
-    MainApp().run()
