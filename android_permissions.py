@@ -42,7 +42,8 @@ class AndroidPermissions:
             #################################################
             # Customize run time permissions for the app here
             #################################################
-            self.permissions = [Permission.INTERNET]
+            self.permissions = [Permission.INTERNET, Permission.ACCESS_FINE_LOCATION,
+                                Permission.ACCESS_COARSE_LOCATION]
             if api_version < 29:
                 self.permissions.append(Permission.WRITE_EXTERNAL_STORAGE)
                 #################################################
@@ -60,7 +61,9 @@ class AndroidPermissions:
         elif self.permission_dialog_count < 2:
             Clock.schedule_once(self.permission_dialog)  
         else:
-            self.no_permission_view()
+            print("Not all permissions granted")
+            #self.no_permission_view()
+
         
     def permission_dialog(self, dt):
         self.permission_dialog_count += 1

@@ -27,14 +27,12 @@ class MainApp(MDApp):
 
         # Create Database connection:
         conn = sqlite3.connect(os.path.join("data", "fsurv.db"))
-        # Create a Cursor:
         cursor = conn.cursor()
-        # Create the Species table
+        # Create the Species lists table
         cursor.execute("CREATE TABLE if not exists species_list(sciName text, vernacularName text, RL_status)")
-        # Create the record Table
+        # Create the records Table
         cursor.execute("""CREATE TABLE if not exists records(records_id text, sciName text, vernacularName text,
                                        abundance text, timestamp text, lat real, lon real)""")
-        # Commit our changes and close connection.
         conn.commit()
         conn.close()
 
