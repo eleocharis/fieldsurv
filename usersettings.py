@@ -1,7 +1,6 @@
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty
 from kivy.uix.screenmanager import Screen
-from kivymd.uix.menu import MDDropdownMenu
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.stacklayout import StackLayout
 from kivymd.uix.button import MDFillRoundFlatIconButton
@@ -33,30 +32,6 @@ class UserSettings(Screen):
         self.create_buttons_from_tax_list(self.taxon_button_card, self.height, self.width)
         self.load_taxon_selections()
         self.load_user_settings()
-
-        country_list = pd.read_csv(os.path.join("data", "country_lists_joined_adapted.csv"))
-        # print(country_list)
-        countries = [
-            {"text": f'{item}',
-             "viewclass": 'OneLineListItem',
-             "on_release": lambda x=item: self.country_dropdown_callback(x)
-             } for item in country_list["title"]
-        ]
-        self.country_dropdown = MDDropdownMenu(
-            caller=self.ids.country_button,
-            items=countries,
-            width_mult=4)
-
-        languages = [
-            {"text": f'{item}',
-             "viewclass": 'OneLineListItem',
-             "on_release": lambda x=item: self.language_dropdown_callback(x)
-             } for item in pd.unique(country_list.language)
-        ]
-        self.language_dropdown = MDDropdownMenu(
-            caller=self.ids.language_button,
-            items=languages,
-            width_mult=4)
         print("UserSettings.__init__ executed")
 
     def create_buttons_from_tax_list(self, taxon_button_card, width, height):
@@ -164,13 +139,6 @@ class UserSettings(Screen):
             except:
                 pass
         print("UserSettings.get_species_lists executed")
-
-    def country_dropdown_callback(self, text_item):
-        self.ids.country.text = text_item
-
-    def language_dropdown_callback(self, text_item):
-        self.ids.language.text = text_item
-
 
     def load_user_settings(self):
         # upload user_settings at app startup

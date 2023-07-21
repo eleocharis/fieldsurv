@@ -25,11 +25,13 @@
             id: user_name
             hint_text: "Your Name"
             helper_text: "Name will be added to lists when exported"
+            on_text_validate: root.ids.institution.focus = True
 
         MDTextField:
             id: institution
             hint_text: "Your Institution"
             helper_text: "Might be useful for collaborative work"
+            on_text_validate: root.ids.country.focus = True
 
         MDGridLayout:
             cols: 2
@@ -39,12 +41,12 @@
                 id: country
                 hint_text: "Current Country"
                 helper_text: "In which country you would like record species"
-                on_text_validate: language.focus = True
+                on_text_validate: root.ids.language.focus = True
 
             MDFloatingActionButton:
                 id: country_button
                 icon: 'map'
-                on_press: root.country_dropdown.open()
+                on_press:
 
             MDTextField:
                 id: language
@@ -55,7 +57,7 @@
             MDFloatingActionButton:
                 id: language_button
                 icon: 'flower'
-                on_press: root.language_dropdown.open()
+                on_press:
 
         MDCard:
             id: taxon_button_card
@@ -64,7 +66,7 @@
 
         MDFillRoundFlatButton:
             text: "Upload lists"
-            on_release: threading.Thread(target=root.get_species_lists).start()
+            on_release: root.get_species_lists()
 
         MDFillRoundFlatButton:
             text: "Switch to dark theme"
