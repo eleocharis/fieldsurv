@@ -6,6 +6,7 @@ from kivy.uix.stacklayout import StackLayout
 from kivymd.uix.button import MDFillRoundFlatIconButton
 from collections import defaultdict
 import pandas as pd
+import threading
 import sqlite3
 import json
 import os
@@ -87,7 +88,7 @@ class UserSettings(Screen):
                 if taxon in self.taxon_pull_list:
                     button.icon = 'check-circle'
 
-            self.get_species_lists()
+            threading.Thread(target=self.get_species_lists).start()
         print("UserSettings.load_taxon_selections executed")
 
     def get_species_lists(self):
