@@ -166,7 +166,7 @@ class SimpleRec(Screen, AutoCompleteSp):
 
             # Empty fields and set focus
             self.ids.tf.text = ""
-            self.ids.abundance.text = "1"
+            self.ids.abundance.text = ""
             self.ids.time.text = datetime.datetime.now().strftime("%H:%M")
             self.ids.tf.focus = True
         print("SimpleRec.add_points executed")
@@ -337,7 +337,7 @@ class FeedSpecInput(MDDialog):
         super().__init__(
             title="Nothing can not be add!",
             text="You have to fucking type in a species! Stupid!",
-            radius = [20, 20, 20, 20],
+            radius=[20, 20, 20, 20],
             buttons=[
                 MDFillRoundFlatButton(
                     text="OK",
