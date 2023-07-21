@@ -10,25 +10,23 @@ import sqlite3
 import json
 import os
 
-
 Builder.load_file('usersettings.kv')
 
 
 class UserSettings(Screen):
-    prep_spec_lists = ObjectProperty()
     # collected buttons which go into the Card
     taxon_button_card = ObjectProperty()
     # this dictionary stores all button references.
     taxon_button_list = {}
-    # Holds all species lists which are uploaded by the user
-    species_list = pd.DataFrame()
     # Dict of genus keys with species epithet as values.
     genus_dict = defaultdict(list)
-    # By user selected Taxon for autocompletion
-    taxon_pull_list = []
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        # all available species lists uploaded by the user
+        self.taxon_list = []
+        # By user selected Taxon for autocompletion
+        self.taxon_pull_list = []
         self.create_buttons_from_tax_list(self.taxon_button_card, self.height, self.width)
         self.load_taxon_selections()
         self.load_user_settings()
@@ -36,24 +34,23 @@ class UserSettings(Screen):
 
     def create_buttons_from_tax_list(self, taxon_button_card, width, height):
         # This method loads up all available Species lists in the "species_lists" folder
+        # and creates buttons which can be selected by the user.
 
         # Looks up, for which taxon (species groups) lists are available.
-        spec_lists = []
         for root, dirs, files in os.walk(os.path.join("data", "species_lists")):
             for file in files:
                 if file.endswith(".csv"):
-                    spec_lists.append(os.path.join(root, file))
-
-        # print(spec_lists)
-        # Creates a list of taxon out of the spec_country_taxon.csv
-        taxon_list = [str(x).split("_")[-1][:-4] for x in spec_lists]
+                    # spec_lists_full_path.append(os.path.join(root, file))
+                    self.taxon_list.append(file)
+        self.taxon_list = [spec_list[:-4] for spec_list in self.taxon_list]
+        print(self.taxon_list)
 
         # Prepare the widget structure:
         button_scroll_view = ScrollView(size_hint=(1, None), size=(width, "130dp"))
         stack_layout = StackLayout(size_hint_y=None, size=[width, height], padding=["8dp", 0], spacing="2dp")
         stack_layout.bind(minimum_height=stack_layout.setter('height'))
 
-        for taxon in taxon_list:
+        for taxon in self.taxon_list:
             taxon_button = MDFillRoundFlatIconButton(text=taxon, id=taxon, icon='circle',
                                                      on_press=self.button_pressed)
             self.taxon_button_list[taxon] = taxon_button
@@ -62,6 +59,7 @@ class UserSettings(Screen):
 
         button_scroll_view.add_widget(stack_layout)
         taxon_button_card.add_widget(button_scroll_view)
+        
         print("UserSettings.create_buttons_from_tax_list executed")
         return self.taxon_button_list
 
@@ -75,48 +73,36 @@ class UserSettings(Screen):
         print("UserSettings.button_pressed executed")
 
     def load_taxon_selections(self):
-        # upload of user_settings at app startup
+        # upload of species lists from user_settings.json.
         if os.path.exists(os.path.join("data", "user_settings.json")):
             with open(os.path.join("data", "user_settings.json")) as us:
                 user_settings = json.load(us)
 
             self.taxon_pull_list = user_settings["taxon"]
+            # check if csv is still available, update if user deleted one which was saved in user_settings.json
+            self.taxon_pull_list = [taxon for taxon in self.taxon_pull_list if taxon in self.taxon_list]
 
             # Check buttons for selected species lists.
             for taxon, button in self.taxon_button_list.items():
                 if taxon in self.taxon_pull_list:
                     button.icon = 'check-circle'
-                    print(taxon)
-                    self.get_species_lists()
+
+            self.get_species_lists()
         print("UserSettings.load_taxon_selections executed")
 
     def get_species_lists(self):
-        # Uploads species lists for all selected taxon buttons into a dictionary.
+        # Uploads species lists for all selected taxon buttons into a dictionary and the database.
+        species_df = pd.DataFrame()
 
-        # Remove all previously loaded data_frames
-        self.species_list = self.species_list.iloc[0:0]
+        for spec_list in self.taxon_pull_list:
+            path = os.path.join("data", "species_lists",  spec_list + ".csv")
+            new_list = pd.read_csv(path)
+            species_df = pd.concat([species_df, new_list], ignore_index = True, sort = False)
+        # species_df.to_csv("see_whats_loaded.csv", index=False)
 
-        for taxon in self.taxon_pull_list:
-            print(taxon)
-            path = os.path.join("data", "species_lists", "spec_germany_" + taxon + ".csv")
-
-            # Read the file into a dataframe (try because someone could delete a list while it is
-            # still in the settingsfile than it crashes.
-            try:
-                new_lists = pd.read_csv(path)
-            except:
-                continue
-            # Store the dataframe in the dictionary using the filename as the key
-            # SPECIES_LISTS[taxon] = df
-            self.species_list = pd.concat([self.species_list, new_lists], ignore_index = True, sort = False)
-
-            # self.species_list.to_csv("test.csv", index=False)
-
-        # Create Database connection:
-        conn = sqlite3.connect(os.path.join("data", "fsurv.db"))
         # Save the DataFrame to the SQLite database
-        self.species_list.to_sql('species_list', conn, if_exists='replace')
-        # Close connection.
+        conn = sqlite3.connect(os.path.join("data", "fsurv.db"))
+        species_df.to_sql('species_list', conn, if_exists='replace')
         conn.commit()
         conn.close()
 
@@ -124,7 +110,7 @@ class UserSettings(Screen):
         # and after only the species within the selected genus.
         self.genus_dict.clear()
 
-        for index, row in self.species_list.iterrows():
+        for index, row in species_df.iterrows():
             sp = row["sciName"]
             try:
                 genus = sp.split(" ", maxsplit=1)[0]
