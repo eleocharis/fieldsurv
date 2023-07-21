@@ -1,6 +1,7 @@
 #:import MapView kivy_garden.mapview.MapView
 #:import GpsPointer gpspointer.GpsPointer
 #:include gpspointer.kv
+#:import threading threading
 
 <SimpleRec>:
 
@@ -117,7 +118,7 @@
             id: tf
             hint_text: "Enter Species"
             helper_text: "Type in the scientific or vernacular name of the species you like to record"
-            on_text: root.create_suggestions(*args)
+            on_text: threading.Thread(target=root.create_suggestions(*args)).start()
             on_text_validate: root.ids.abundance.focus = True
 
         MDCard:
