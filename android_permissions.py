@@ -43,8 +43,8 @@ class AndroidPermissions:
             #################################################
             # Customize run time permissions for the app here
             #################################################
-            self.permissions = [Permission.INTERNET, Permission.ACCESS_FINE_LOCATION,
-                                Permission.ACCESS_COARSE_LOCATION]
+            self.permissions = [Permission.INTERNET, Permission.ACCESS_COARSE_LOCATION,
+                                Permission.ACCESS_FINE_LOCATION]
             if api_version < 29:
                 self.permissions.append(Permission.WRITE_EXTERNAL_STORAGE)
                 #################################################
