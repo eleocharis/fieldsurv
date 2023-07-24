@@ -26,8 +26,8 @@ class GpsHelper:
                 else:
                     print("Did not got all GPS permissions")
 
-            request_permissions([Permission.ACCESS_FINE_LOCATION],
-                                Permission.ACCESS_COARSE_LOCATION, callback)
+            request_permissions([Permission.ACCESS_COARSE_LOCATION,
+                                 Permission.ACCESS_FINE_LOCATION], callback)
 
         # Configure GPS
         if platform == 'ios':
@@ -36,13 +36,15 @@ class GpsHelper:
                           on_status=self.on_auth_status)
             gps.start(minTime=1000, minDistance=0)
 
-    def update_pointer_position(self,gps_pointer, *args, **kwargs):
+    def update_pointer_position(self, *args, **kwargs):
         my_lat = kwargs['lat']
         my_lon = kwargs['lon']
+        #my_lat = 48.1
+        #my_lon = 7.82
 
-        gps_blinker = App.get_running_app().root.get_screen('simple_rec').simple_rec_screen.pointer
-        gps_blinker.lat = my_lat
-        gps_blinker.lon = my_lon
+        gps_pointer = App.get_running_app().root.get_screen('simple_rec').simple_rec_screen.pointer
+        gps_pointer.lat = my_lat
+        gps_pointer.lon = my_lon
         print("GPS position ", my_lat, my_lon)
 
         # Center map on GPS position on startup

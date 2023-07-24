@@ -1,5 +1,6 @@
 from kivy.utils import platform
 from kivy.clock import mainthread
+from gpshelper import GpsHelper
 
 if platform == 'android':
     from kivy.uix.button import Button
@@ -35,7 +36,7 @@ if platform == 'android':
 ###########################################################################
 
 class AndroidPermissions:
-    def __init__(self, start_app = None):
+    def __init__(self, start_app=None):
         self.permission_dialog_count = 0
         self.start_app = start_app
         if platform == 'android':
@@ -47,7 +48,7 @@ class AndroidPermissions:
             if api_version < 29:
                 self.permissions.append(Permission.WRITE_EXTERNAL_STORAGE)
                 #################################################
-            self.permission_status([],[])
+            self.permission_status([], [])
         elif self.start_app:
             self.start_app()
 
@@ -55,15 +56,17 @@ class AndroidPermissions:
         granted = True
         for p in self.permissions:
             granted = granted and check_permission(p)
+            print(granted, p)
         if granted:
             if self.start_app:
+                # Init GPS position on map
+                GpsHelper.run()
                 self.start_app()
         elif self.permission_dialog_count < 2:
             Clock.schedule_once(self.permission_dialog)  
         else:
             print("Not all permissions granted")
             #self.no_permission_view()
-
         
     def permission_dialog(self, dt):
         self.permission_dialog_count += 1
@@ -72,9 +75,9 @@ class AndroidPermissions:
     @mainthread
     def no_permission_view(self):
         view = ModalView()
-        view.add_widget(Button(text='Permission NOT granted.\n\n' +\
-                               'Tap to quit app.\n\n\n' +\
-                               'If you selected "Don\'t Allow",\n' +\
+        view.add_widget(Button(text='Permission NOT granted.\n\n' +
+                               'Tap to quit app.\n\n\n' +
+                               'If you selected "Don\'t Allow",\n' +
                                'enable permission with App Settings.',
                                on_press=self.bye))
         view.open()

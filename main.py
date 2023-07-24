@@ -15,7 +15,6 @@ from usersettings import UserSettings
 from gpshelper import GpsHelper
 
 
-
 class MainApp(MDApp):
     def build(self):
         # Theming:
@@ -67,14 +66,9 @@ class MainApp(MDApp):
         # Handle Permissions
         self.dont_gc = AndroidPermissions(self.start_app)
 
-
     def start_app(self):
         # Delete Permission functions to get rid of garbage.
         self.dont_gc = None
-
-        # Init GPS position on map
-        GpsHelper().run()
-
 
 
 if __name__ == '__main__':
