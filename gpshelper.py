@@ -39,13 +39,13 @@ class GpsHelper:
     def update_pointer_position(self, *args, **kwargs):
         my_lat = kwargs['lat']
         my_lon = kwargs['lon']
-        #my_lat = 48.1
-        #my_lon = 7.82
+        my_lat = 48.1
+        my_lon = 7.82
 
         gps_pointer = App.get_running_app().root.get_screen('simple_rec').simple_rec_screen.pointer
         gps_pointer.lat = my_lat
         gps_pointer.lon = my_lon
-        print("GPS position ", my_lat, my_lon)
+        print(f'GPS position {my_lat} {my_lon}')
 
         # Center map on GPS position on startup
         if not self.has_centered_map:

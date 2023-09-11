@@ -63,6 +63,9 @@ class MainApp(MDApp):
         return screen_manager
 
     def on_start(self):
+        # Initialize GPS
+        GpsHelper().run()
+
         # Handle Permissions
         self.dont_gc = AndroidPermissions(self.start_app)
 
