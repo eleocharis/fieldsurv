@@ -26,7 +26,7 @@ class GpsHelper:
                 else:
                     print("Did not got all GPS permissions")
 
-            request_permissions([Permission.ACCESS_COARSE_LOCATION,
+            request_permissions([Permission.INTERNET, Permission.ACCESS_COARSE_LOCATION,
                                  Permission.ACCESS_FINE_LOCATION], callback)
 
         # Configure GPS

@@ -5,7 +5,7 @@ idna==3.4
 Kivy==2.2.1
 Kivy-Garden==0.1.5
 kivy-garden.mapview==1.0.6
-kivymd==1.1.1
+kivymd==1.2.0
 mapview==1.0.6
 numpy==1.25.0
 pandas==2.0.2

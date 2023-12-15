@@ -65,14 +65,14 @@ class MainApp(MDApp):
     def on_start(self):
         # Initialize GPS
         GpsHelper().run()
-
+"""
         # Handle Permissions
         self.dont_gc = AndroidPermissions(self.start_app)
 
     def start_app(self):
         # Delete Permission functions to get rid of garbage.
         self.dont_gc = None
-
+"""
 
 if __name__ == '__main__':
     MainApp().run()
